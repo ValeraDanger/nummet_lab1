@@ -12,23 +12,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create build directory
-        run: mkdir build
+      - name: Create libs directory # <--  Создаем папку, если ее нет
+        run: mkdir libs
         working-directory: ./
 
       - name: Compile shared libraries
         run: |
-          g++ -shared -fPIC -o build/l1_1.so l1_1.cpp
-          g++ -shared -fPIC -o build/l1_2.so l1_2.cpp
-          g++ -shared -fPIC -o build/l1_test.so l1_test.cpp
+          g++ -shared -fPIC -o libs/l1_1.so l1_1.cpp
+          g++ -shared -fPIC -o libs/l1_2.so l1_2.cpp
+          g++ -shared -fPIC -o libs/l1_test.so l1_test.cpp
         working-directory: ./
-
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'build/*.so'
+          add: 'libs/*.so' # <-- Измененный путь
           message: 'Build: Update shared libraries'
           author_name: github-actions[bot]
           author_email: github-actions[bot]@users.noreply.github.com
-          github_token: ${{ secrets.GITHUB_TOKEN }} 
+          github_token: ${{ secrets.TOKEN }}
