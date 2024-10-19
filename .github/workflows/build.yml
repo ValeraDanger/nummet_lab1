@@ -30,4 +30,4 @@ jobs:
           message: 'Build: Update shared libraries'
           author_name: github-actions[bot]
           author_email: github-actions[bot]@users.noreply.github.com
-          github_token: ${{ secrets.TOKEN }}
+          github_token: ${{ secrets.ACTIONS_TOKEN  }}
