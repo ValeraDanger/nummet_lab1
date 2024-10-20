@@ -64,7 +64,8 @@ class l1_test:
         lib_path = dynamicLibrary.getPathTo("l1_test")
         if not os.path.exists(lib_path):
             raise FileNotFoundError(f"Не найден файл DLL по пути: {lib_path}")
-        self.lib = ctypes.WinDLL(lib_path)
+        self.lib = ctypes.CDLL(lib_path)
+        func = getattr(self.lib, 'rk_4')
         self.lib.RK_4.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_int]
         self.lib.RK_4.restype = ctypes.c_int
 
