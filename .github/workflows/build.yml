@@ -46,11 +46,9 @@ jobs:
         run: mkdir -p libs/${{ matrix.os_name }}
         working-directory: ./
 
-      - name: Set up MSVC environment on Windows
+      - name: Set up MSVC environment
         if: matrix.os == 'windows-latest'
-        run: |
-          cmd.exe /c ""C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat""
-
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Compile shared libraries
         run: |
