@@ -51,3 +51,11 @@ jobs:
           ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_1.${{ matrix.extension }} l1_1.cpp
           ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_2.${{ matrix.extension }} l1_2.cpp
           ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_test.${{ matrix.extension }} l1_test.cpp
+      - name: Commit and push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'libs/*' 
+          message: 'Build: Update shared libraries'
+          author_name: github-actions[bot]
+          author_email: github-actions[bot]@users.noreply.github.com
+          github_token: ${{ secrets.ACTIONS_TOKEN }}
