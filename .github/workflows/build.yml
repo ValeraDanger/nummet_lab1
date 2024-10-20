@@ -2,32 +2,35 @@ name: Build and Commit Shared Libraries
 
 on:
   push:
-    branches: [ main ] # Или ваша главная ветка
+    branches: [ main ] 
   pull_request:
     branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            extension: so
+            compiler: g++
+          - os: macos-latest
+            extension: dylib
+            compiler: g++
+          - os: windows-latest
+            extension: dll
+            compiler: g++ 
+
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create libs directory # <--  Создаем папку, если ее нет
+      - name: Create libs directory
         run: mkdir libs
         working-directory: ./
 
       - name: Compile shared libraries
         run: |
-          g++ -shared -fPIC -o libs/l1_1.so l1_1.cpp
-          g++ -shared -fPIC -o libs/l1_2.so l1_2.cpp
-          g++ -shared -fPIC -o libs/l1_test.so l1_test.cpp
-        working-directory: ./
-
-      - name: Commit and push changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: 'libs/*.so' # <-- Измененный путь
-          message: 'Build: Update shared libraries'
-          author_name: github-actions[bot]
-          author_email: github-actions[bot]@users.noreply.github.com
-          github_token: ${{ secrets.ACTIONS_TOKEN  }}
+          ${{ matrix.compiler }} -shared -fPIC -o libs/l1_1.${{ matrix.extension }} l1_1.cpp
+          ${{ matrix.compiler }} -shared -fPIC -o libs/l1_2.${{ matrix.extension }} l1
