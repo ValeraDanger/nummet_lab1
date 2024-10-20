@@ -42,4 +42,5 @@ jobs:
       - name: Compile shared libraries
         run: |
           ${{ matrix.compiler }} -shared -fPIC -o libs/l1_1.${{ matrix.extension }} l1_1.cpp
-          ${{ matrix.compiler }} -shared -fPIC -o libs/l1_2.${{ matrix.extension }} l1
+          ${{ matrix.compiler }} -shared -fPIC -o libs/l1_2.${{ matrix.extension }} l1_2.cpp
+          ${{ matrix.compiler }} -shared -fPIC -o libs/l1_test.${{ matrix.extension }} l1_test.cpp
