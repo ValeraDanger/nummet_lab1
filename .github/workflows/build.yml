@@ -28,7 +28,7 @@ jobs:
             os_name: macos
           - os: windows-latest
             extension: dll
-            compiler: g++
+            compiler: msvc
             os_name: windows
 
     steps:

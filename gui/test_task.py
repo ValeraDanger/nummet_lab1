@@ -1,10 +1,15 @@
-from custom_loyauts import *
+from custom_loyauts import GraphLayout, ScalarStartConditions, NumericalIntegrationParametersInput, XlimitsInput, LatexRendererLayout
+from PySide6.QtWidgets import QCheckBox, QErrorMessage ,QDialogButtonBox, QApplication, QPushButton, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpinBox, QDoubleSpinBox, QVBoxLayout, QLineEdit, QLabel, QDialog
+import numpy as np
+from RK import l1_test
+
 
 
 class TabTestTask(QWidget):
     def __init__(self):
         super().__init__()
         mainLayout = QVBoxLayout()
+        self.RK = l1_test()
         
         testTaskLayout = LatexRendererLayout()
 
