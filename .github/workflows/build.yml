@@ -1,15 +1,13 @@
-name: Build and Commit Shared Libraries
-
 on:
   push:
-    branches: 
-      - '*'
+    branches:
+      - '' 
   pull_request:
-    branches: 
-      - '*'
+    branches:
+      - '' 
   workflow_dispatch:
     permissions:
-      runs: write 
+      runs: write
 
 jobs:
   build:
@@ -36,39 +34,47 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Remove platform directory (if exists)
-        if: runner.os == 'Windows' 
-        run: Remove-Item -Path windows -Recurse -Force -ErrorAction SilentlyContinue
-        
-      - name: Remove platform directory (if exists)
-        if: runner.os == 'macOS'
-        run: rm -rf macos
-
-      - name: Remove platform directory (if exists)
-        if: runner.os == 'Linux'
-        run: rm -rf linux
+      - name: Remove platform directories
+        run: |
+          rm -rf windows linux ubuntu
+        shell: bash
 
       - name: Create platform directories
         run: |
           mkdir -p windows
           mkdir -p linux
           mkdir -p ubuntu
-        working-directory: ./
 
       - name: Compile shared libraries
+        working-directory: ./ 
         run: |
           ${{ matrix.compiler }} -shared -fPIC -o ${{ matrix.os_name }}/l1_1.${{ matrix.extension }} l1_1.cpp
           ${{ matrix.compiler }} -shared -fPIC -o ${{ matrix.os_name }}/l1_2.${{ matrix.extension }} l1_2.cpp
           ${{ matrix.compiler }} -shared -fPIC -o ${{ matrix.os_name }}/l1_test.${{ matrix.extension }} l1_test.cpp
 
-      - name: Pull latest changes 
-        run: git pull origin ${{ github.ref_name }} 
+      - name: Create temporary directory
+        run: mkdir temp
 
-      - name: Commit and push changes
+      - name: Move compiled libraries to temporary directory
+        run: |
+          mv windows/* temp/
+          mv linux/* temp/
+          mv ubuntu/* temp/
+
+      - name: Commit and push changes (atomic update)
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'windows linux ubuntu' 
-          message: 'Build: Update shared libraries'
+          add: 'temp'
+          message: 'Build: Update shared libraries (atomic)'
           author_name: github-actions[bot]
           author_email: github-actions[bot]@users.noreply.github.com
-          github_token: ${{ secrets.ACTIONS_TOKEN }} 
+          github_token: ${{ secrets.ACTIONS_TOKEN }}
+          
+      - name: Remove old platform directories
+        run: |
+          rm -rf windows
+          rm -rf linux
+          rm -rf ubuntu
+          
+      - name: Rename temporary directory
+        run: mv temp windows # Or linux or ubuntu, depending on your desired structure 
