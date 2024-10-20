@@ -34,7 +34,13 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Remove libs directory (if exists)
+        if: runner.os == 'Windows' 
+        run: Remove-Item -Path libs -Recurse -Force
+        
+      - name: Remove libs directory (if exists)
+        if: runner.os != 'Windows'
         run: rm -rf libs
+
       - name: Create libs directory
         run: mkdir libs
         working-directory: ./
