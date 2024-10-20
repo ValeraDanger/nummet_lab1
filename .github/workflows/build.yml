@@ -49,7 +49,8 @@ jobs:
       - name: Set up MSVC environment on Windows
         if: matrix.os == 'windows-latest'
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmd.exe /c "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
 
       - name: Compile shared libraries
         run: |
