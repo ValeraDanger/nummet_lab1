@@ -2,9 +2,12 @@ name: Build and Commit Shared Libraries
 
 on:
   push:
-    branches: [ main ] 
+    branches: 
+      - '*'
   pull_request:
-    branches: [ main ]
+    branches: 
+      - '*'
+  
 
 jobs:
   build:
