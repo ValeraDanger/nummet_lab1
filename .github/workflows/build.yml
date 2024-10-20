@@ -1,61 +1,47 @@
 name: Build and Commit Shared Libraries
 
 on:
-  push:
-    branches: 
-      - '*'
-  pull_request:
-    branches: 
-      - '*'
-  workflow_dispatch:
-    permissions:
-      runs: write 
+  # ...
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            extension: so
-            compiler: g++
-            os_name: linux
-          - os: macos-latest
-            extension: dylib
-            compiler: g++
-            os_name: macos
-          - os: windows-latest
-            extension: dll
-            compiler: g++
-            os_name: windows
+    # ...
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Remove libs directory (if exists)
+      - name: Remove platform directory (if exists)
         if: runner.os == 'Windows' 
-        run: Remove-Item -Path libs/${{ matrix.os_name }} -Recurse -Force -ErrorAction SilentlyContinue
+        run: Remove-Item -Path windows -Recurse -Force -ErrorAction SilentlyContinue
         
-      - name: Remove libs directory (if exists)
-        if: runner.os != 'Windows'
-        run: rm -rf libs/${{ matrix.os_name }}
+      - name: Remove platform directory (if exists)
+        if: runner.os == 'macOS'
+        run: rm -rf macos
 
-      - name: Create libs directory
-        run: mkdir -p libs/${{ matrix.os_name }}
+      - name: Remove platform directory (if exists)
+        if: runner.os == 'Linux'
+        run: rm -rf linux
+
+      - name: Create platform directories
+        run: |
+          mkdir -p windows
+          mkdir -p linux
+          mkdir -p ubuntu
         working-directory: ./
 
       - name: Compile shared libraries
         run: |
-          ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_1.${{ matrix.extension }} l1_1.cpp
-          ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_2.${{ matrix.extension }} l1_2.cpp
-          ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_test.${{ matrix.extension }} l1_test.cpp
+          ${{ matrix.compiler }} -shared -fPIC -o ${{ matrix.os_name }}/l1_1.${{ matrix.extension }} l1_1.cpp
+          ${{ matrix.compiler }} -shared -fPIC -o ${{ matrix.os_name }}/l1_2.${{ matrix.extension }} l1_2.cpp
+          ${{ matrix.compiler }} -shared -fPIC -o ${{ matrix.os_name }}/l1_test.${{ matrix.extension }} l1_test.cpp
+
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'libs/*' 
+          add: 'windows linux ubuntu' 
           message: 'Build: Update shared libraries'
           author_name: github-actions[bot]
           author_email: github-actions[bot]@users.noreply.github.com
-          github_token: ${{ secrets.ACTIONS_TOKEN }}
+          github_token: ${{ secrets.ACTIONS_TOKEN }} 
