@@ -36,7 +36,7 @@ jobs:
 
       - name: Remove libs directory (if exists)
         if: runner.os == 'Windows' 
-        run: Remove-Item -Path libs/${{ matrix.os_name }} -Recurse -Force
+        run: Remove-Item -Path libs/${{ matrix.os_name }} -Recurse -Force -ErrorAction SilentlyContinue
         
       - name: Remove libs directory (if exists)
         if: runner.os != 'Windows'
