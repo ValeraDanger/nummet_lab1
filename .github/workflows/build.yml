@@ -52,15 +52,15 @@ jobs:
 
       - name: Compile shared libraries
         run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+          if ($env:RUNNER_OS -eq 'Windows') {
             cl /LD /Fe:libs/${{ matrix.os_name }}/l1_1.${{ matrix.extension }} l1_1.cpp
             cl /LD /Fe:libs/${{ matrix.os_name }}/l1_2.${{ matrix.extension }} l1_2.cpp
             cl /LD /Fe:libs/${{ matrix.os_name }}/l1_test.${{ matrix.extension }} l1_test.cpp
-          else
+          } else {
             ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_1.${{ matrix.extension }} l1_1.cpp
             ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_2.${{ matrix.extension }} l1_2.cpp
             ${{ matrix.compiler }} -shared -fPIC -o libs/${{ matrix.os_name }}/l1_test.${{ matrix.extension }} l1_test.cpp
-          fi
+          }
 
       - name: Pull latest changes
         run: |
