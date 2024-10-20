@@ -33,6 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Remove libs directory (if exists)
+        run: rm -rf libs
       - name: Create libs directory
         run: mkdir libs
         working-directory: ./
