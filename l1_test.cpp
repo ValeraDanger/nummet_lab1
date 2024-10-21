@@ -3,7 +3,13 @@
 #include <math.h>
 
 #define OUT_PATH "output/output_test.csv"
-
+#ifdef _WIN64  // Проверка на 64-битную версию Windows
+    #define EXPORT __declspec(dllexport)
+#elif defined(_WIN32)  // Проверка на 32-битную версию Windows
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT __attribute__((visibility("default")))
+#endif
 
 extern "C" {
     double f(const double &x, const double &y) {
@@ -37,7 +43,7 @@ double RK_4_Step(const double &x, const double &y,const double &h)
 }
 }
 
-extern "C" {
+extern "C" EXPORT
 int RK_4(double x0, double y0, double h, double xmax, int Nmax)
 {
     int step = 0;
@@ -56,9 +62,9 @@ int RK_4(double x0, double y0, double h, double xmax, int Nmax)
 
     return 0;
 }
-}
 
-extern "C" {
+
+extern "C"  EXPORT
 int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, double eps_out, int Nmax)
 {
     double x = x0;
@@ -123,7 +129,6 @@ int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, doub
 
 return 0;
 }
-}
 
 int main()
 {
@@ -136,7 +141,7 @@ int main()
     double edge = 0.1;
     int maxSteps = 1000;
 
-    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge, maxSteps);
+    //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge, maxSteps);
     // RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;
