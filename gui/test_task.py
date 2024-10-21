@@ -309,7 +309,7 @@ class TabTestTask(QWidget):
             "amountOfStepsInput": self.ui.amount_of_steps_input,
             "parent": self  # Добавлено для доступа к методам TabTestTask
         })
-        self.loadSettings()  # Загрузка настроек после создания UI
+        #self.loadSettings()  # Загрузка настроек после создания UI
 
     def calculateClick(self):
         # ... (код для получения параметров из UI)
