@@ -127,14 +127,14 @@ int main()
     setlocale(LC_ALL, "Russian");
     double x0 = 0.;            // Начальная точка x
     double y0 = 1.0;            // Начальное значение y
-    double h0 = 0.00001;            // Начальный размер шага
-    double xmax = 20.0;          // Граница x
+    double h0 = 0.1;            // Начальный размер шага
+    double xmax = 10.0;          // Граница x
     double tolerance = 1e-6;   // Заданная точность
     double edge = 0.001;
     int maxSteps = 1000;         // Максимальное количество шагов
 
     //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
-    //RK_4(x0, y0, h0, xmax, maxSteps);
+    RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;
 }

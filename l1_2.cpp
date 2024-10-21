@@ -185,7 +185,8 @@ int main() {
 
 
     //Вызов rungeKuttaAdaptive с данными переменными
-    rungeKuttaAdaptive(x0, y10, y20, h0, xmax, a, b, maxSteps, tolerance, edge);
+    //rungeKuttaAdaptive(x0, y10, y20, h0, xmax, a, b, maxSteps, tolerance, edge);
+    rungeKutta(x0, y10, y20, h0, xmax, a, b, maxSteps);
 
     return 0;
 }

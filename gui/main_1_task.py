@@ -185,11 +185,13 @@ class TabMainTask1(QWidget):
         if local_error <= 0:
             print("Ошибка: Допустимая локальная погрешность должна быть положительным числом.", file=sys.stderr)
             return
-
-        if self.to_be_control_local_error:
-            self.RK.rk4_adaptive(x0, u_x0, h0, x_end, local_error, epsilon_border, amountOfSteps)
-        else:
-            self.RK.rk_4(x0, u_x0, h0, x_end, amountOfSteps)
+        try:
+            if self.to_be_control_local_error:
+                self.RK.rk4_adaptive(x0, u_x0, h0, x_end, local_error, epsilon_border, amountOfSteps)
+            else:
+                self.RK.rk_4(x0, u_x0, h0, x_end, amountOfSteps)
+        except Exception as e:
+            print(f"Ошибка: {e}", file=sys.stderr)
 
         self.tryLoadResult(self.to_be_control_local_error)
         self.refreshPlot()

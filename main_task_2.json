@@ -1,18 +1,18 @@
 {
     "initialConditions": {
-        "X0": "1",
-        "UX0": "1",
+        "X0": "0",
+        "UX0": "0",
         "DUX0": "1"
     },
     "xlimits": {
-        "endX": "10",
-        "epsilonBorder": "0.1"
+        "endX": "1000",
+        "epsilonBorder": "1e-7"
     },
     "numericalIntegrationParameters": {
-        "h0": "0.01",
-        "controlLocalError": true,
-        "epsilon": "0.0001",
-        "to_be_control_local_error": true
+        "h0": "0.001",
+        "controlLocalError": false,
+        "epsilon": "1e-7",
+        "to_be_control_local_error": false
     },
     "abinput": {
         "a": "1",

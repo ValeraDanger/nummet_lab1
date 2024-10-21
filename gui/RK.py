@@ -136,12 +136,12 @@ class l1_2:
         self.lib.rungeKuttaAdaptive.restype = ctypes.c_int
     def rk_4(self, x0: float, y10: float, y20: float, h:float, xmax:float, a: float, b: float, maxSteps: int):
         #int RK_4(double x0, double y0, double h, double xmax, int maxSteps)
-        code = self.lib.rungeKutta(x0, y10, y20, xmax, h, a, b, maxSteps)
+        code = self.lib.rungeKutta(x0, y10, y20, h, xmax, a, b, maxSteps)
         if code != 0:
             raise Exception("Something went wrong")
         return self.getResult()
     def rk4_adaptive(self, x0: float, y10: float, y20: float, xmax:float, h:float, a: float, b: float, maxSteps: int, tolerance:float, edge:float):
-        code = self.lib.rungeKuttaAdaptive(x0, y10, y20, xmax, h, a, b, maxSteps, tolerance, edge)
+        code = self.lib.rungeKuttaAdaptive(x0, y10, y20, h, xmax, a, b, maxSteps, tolerance, edge)
         if code != 0:
             raise Exception("Something went wrong")
         return self.getResult()
