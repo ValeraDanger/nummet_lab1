@@ -46,6 +46,7 @@ if __name__ == "__main__":
     app = QApplication([])
 
     window = MainWindow()
+    window.setMinimumSize(400, 600)
     window.show()
 
     app.exec()

@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QCheckBox, QErrorMessage ,QDialogButtonBox, QApplication, QPushButton, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSpinBox, QDoubleSpinBox, QVBoxLayout, QLineEdit, QLabel, QDialog
-from PySide6.QtGui import QDoubleValidator
+from PySide6.QtGui import QDoubleValidator, QIntValidator
 import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -10,6 +10,7 @@ class GraphLayout(QVBoxLayout):
         super().__init__()
         self.canvas = MatplotlibGraph(self)
         self.addWidget(self.canvas)
+
     def clear(self):
         self.canvas.clear()
 
@@ -22,13 +23,29 @@ class GraphLayout(QVBoxLayout):
     def set_title(self, title):
         self.canvas.set_title(title)
 
-    def plot(self, X, Y):
-        self.canvas.plot(X, Y)
+    def plot(self, X, Y, label=''):
+        self.canvas.plot(X, Y, label)
 
     def draw(self):
         self.canvas.Draw()
+    def legend(self):
+        self.canvas.ax.legend()
 
+class NewWindow(QDialog):
+    def __init__(self, title, text):
+        super().__init__()
 
+        self.setWindowTitle(title)
+
+        # Создаем метку с переданным текстом
+        label = QLabel(text)
+
+        # Создаем вертикальный layout и добавляем метку
+        layout = QVBoxLayout()
+        layout.addWidget(label)
+
+        # Устанавливаем layout для формы
+        self.setLayout(layout)
 
 class LatexRendererLayout(QVBoxLayout):
     def __init__(self):
@@ -82,8 +99,8 @@ class MatplotlibGraph(FigureCanvas):
     def set_title(self, title):
         self.ax.set_title(title)
 
-    def plot(self, X, Y):
-        self.ax.plot(X, Y)
+    def plot(self, X, Y, label=''):
+        self.ax.plot(X, Y, label=label)
 
     def Draw(self):
         self.draw()
@@ -125,8 +142,44 @@ class FloatNumberInput(QHBoxLayout):
     def setReadOnly(self, state):
         self.floatNumberLineEdit.setReadOnly(state)
     
+class IntNumberInput(QHBoxLayout):
+    def __init__(self, label):
+        super().__init__()
+        self.label = label
+        self.addWidget(QLabel(label))
+        validator = QIntValidator(0, 10000000)
+        self.intNumberLineEdit = QLineEdit()
+        self.intNumberLineEdit.setValidator(validator)
+        #startXLineEdit.setText(str(startX))
+        self.addWidget(self.intNumberLineEdit)
+    def getIntNumber(self):
+        intNumberString = self.intNumberLineEdit.text()
+        return int(intNumberString)
+    def setIntNumber(self, text):
+        self.intNumberLineEdit.setText(text)
+    def setReadOnly(self, state):
+        self.intNumberLineEdit.setReadOnly(state)
 
+class StartConditions2(QVBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.addWidget(QLabel("Начальные условия"))
+        initialConditionsLoyaut = QHBoxLayout()
+        self.X0Input = FloatNumberInput('X0')
+        initialConditionsLoyaut.addLayout(self.X0Input)
+        self.UX0Input = FloatNumberInput('U(X0)')
+        initialConditionsLoyaut.addLayout(self.UX0Input)
+        self.DUX0Input = FloatNumberInput('U`(X0)')
+        initialConditionsLoyaut.addLayout(self.DUX0Input)
+        self.addLayout(initialConditionsLoyaut)
 
+    def getX0(self):
+        return self.X0Input.getFloatNumber()
+    
+    def getUX0(self):
+        return self.UX0Input.getFloatNumber()
+    def getDUX0(self):
+        return self.DUX0Input.getFloatNumber()
 
 class ScalarStartConditions(QVBoxLayout):
     def __init__(self):
@@ -161,8 +214,15 @@ class NumericalIntegrationParametersInput(QVBoxLayout):
         self.addLayout(mainLoyaut)
     def controlLocalErrorCheckBoxStateChanged(self):
         self.epsilonInput.setReadOnly(not self.controlLocalErrorCheckBox.isChecked())
-
-
+    def getStartStep(self):
+        return self.h0Input.getFloatNumber()
+    def getEpsilonLocalError(self):
+        return self.epsilonInput.getFloatNumber()
+    def isControlLocalError(self):
+        return self.controlLocalErrorCheckBox.isChecked()
+    def setChecked(self, checked):
+        self.controlLocalErrorCheckBox.setChecked(checked)
+    
 class XlimitsInput(QVBoxLayout):
     def __init__(self):
         super().__init__()
@@ -171,24 +231,22 @@ class XlimitsInput(QVBoxLayout):
 
     def createXLimitsInput(self):
         layout2 = QHBoxLayout()
-        self.startXInput = FloatNumberInput("X начальное")
-        layout2.addLayout(self.startXInput)
+        #self.startXInput = FloatNumberInput("X начальное")
+        #layout2.addLayout(self.startXInput)
         self.endXInput = FloatNumberInput("X конечное")
         layout2.addLayout(self.endXInput)
         self.epsilonBorderInput = FloatNumberInput("ε граничное")
         layout2.addLayout(self.epsilonBorderInput)
         return layout2
     
-    def getStartX(self):
-        return self.startXInput.getFloatNumber()
+   # def getStartX(self):
+       # return self.startXInput.getFloatNumber()
     
     def getEndX(self):
-        endXText = self.endXLineEdit.text()
-        return tryConvertToFloat(endXText, 'Неправильно указан конечный X')
+        return self.endXInput.getFloatNumber()
     
     def getEndEpsilon(self):
-        epsilonBorderText = self.epsilonBorderLineEdit.text()
-        return tryConvertToFloat(epsilonBorderText, 'Неправильно указан ε граничное')
+        return self.epsilonBorderInput.getFloatNumber()
 
 def tryConvertToFloat(startXText, errorMessage):
     try:
@@ -201,3 +259,22 @@ def showErrorMessage(errorMessage):
     dlg = ErrorDialog(errorMessage)
     dlg.exec()
 
+class ABInput(QVBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.addWidget(QLabel("Параметры"))
+        self.addLayout(self.createABInput())
+
+    def createABInput(self):
+        layout2 = QHBoxLayout()
+        self.AInput = FloatNumberInput("a")
+        layout2.addLayout(self.AInput)
+        self.BInput = FloatNumberInput("b")
+        layout2.addLayout(self.BInput)
+        return layout2
+    
+    def getA(self):
+        return self.AInput.getFloatNumber()
+    
+    def getB(self):
+        return self.BInput.getFloatNumber()

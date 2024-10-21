@@ -1,0 +1,23 @@
+{
+    "initialConditions": {
+        "X0": "1",
+        "UX0": "1",
+        "DUX0": "1"
+    },
+    "xlimits": {
+        "endX": "10",
+        "epsilonBorder": "0.1"
+    },
+    "numericalIntegrationParameters": {
+        "h0": "0.01",
+        "controlLocalError": true,
+        "epsilon": "0.0001",
+        "to_be_control_local_error": true
+    },
+    "abinput": {
+        "a": "1",
+        "b": "1"
+    },
+    "amountOfSteps": "1000",
+    "selectedGraph": "u`-u"
+}
