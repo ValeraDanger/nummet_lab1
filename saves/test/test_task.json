@@ -1,0 +1,21 @@
+{
+    "initialConditions": {
+        "X0": "0",
+        "UX0": "1"
+    },
+    "xlimits": {
+        "endX": "10",
+        "epsilonBorder": "0.1"
+    },
+    "numericalIntegrationParameters": {
+        "h0": "0.1",
+        "controlLocalError": true,
+        "epsilon": "0.1",
+        "to_be_control_local_error": true
+    },
+    "showNumericSolve": true,
+    "showRealSolve": true,
+    "amountOfSteps": "1000",
+    "csv_filename": "test_task.csv",
+    "task_number": 0
+}
