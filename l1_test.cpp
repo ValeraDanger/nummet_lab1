@@ -141,7 +141,7 @@ int main()
     double edge = 0.1;
     int maxSteps = 1000;
 
-    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge, maxSteps);
+    //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge, maxSteps);
     // RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;

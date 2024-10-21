@@ -134,7 +134,7 @@ int main()
     int maxSteps = 1000;         // Максимальное количество шагов
 
     //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
-    RK_4(x0, y0, h0, xmax, maxSteps);
+    //RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;
 }
