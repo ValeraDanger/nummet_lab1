@@ -1,0 +1,25 @@
+{
+    "initialConditions": {
+        "X0": "0",
+        "UX0": "1",
+        "DUX0": "1"
+    },
+    "xlimits": {
+        "endX": "10",
+        "epsilonBorder": "0.1"
+    },
+    "numericalIntegrationParameters": {
+        "h0": "0.1",
+        "controlLocalError": true,
+        "epsilon": "0.01",
+        "to_be_control_local_error": true
+    },
+    "abinput": {
+        "a": "1",
+        "b": "1"
+    },
+    "amountOfSteps": "100",
+    "selectedGraph": "x - u(x)",
+    "csv_filename": "main_task_2.csv",
+    "task_number": 2
+}

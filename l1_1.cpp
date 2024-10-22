@@ -3,6 +3,13 @@
 
 #define OUT_PATH "output/output_1.csv"
 
+#ifdef _WIN64  // Проверка на 64-битную версию Windows
+    #define EXPORT __declspec(dllexport)
+#elif defined(_WIN32)  // Проверка на 32-битную версию Windows
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT __attribute__((visibility("default")))
+#endif
 
 extern "C" {
     double f(const double &x, const double &y)
@@ -30,7 +37,7 @@ extern "C" {
     }
 }
 
-extern "C"{
+extern "C" EXPORT
     int RK_4(double x0, double y0, double h, double xmax, int maxSteps)
     {
         int steps = 0;
@@ -50,9 +57,9 @@ extern "C"{
         }
         return 0;
     }
-}
 
-extern "C" {
+
+extern "C"  EXPORT
     int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, double eps_out, int Nmax)
     {
         double x = x0;
@@ -113,20 +120,20 @@ extern "C" {
         output.close();
     return 0;
     }
-}
+
 
 int main()
 {
     setlocale(LC_ALL, "Russian");
     double x0 = 0.;            // Начальная точка x
     double y0 = 1.0;            // Начальное значение y
-    double h0 = 0.00001;            // Начальный размер шага
-    double xmax = 20.0;          // Граница x
+    double h0 = 0.1;            // Начальный размер шага
+    double xmax = 10.0;          // Граница x
     double tolerance = 1e-6;   // Заданная точность
     double edge = 0.001;
     int maxSteps = 1000;         // Максимальное количество шагов
 
-    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
+    //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
     //RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;

@@ -5,6 +5,13 @@
 
 #define OUT_PATH "output/output_2.csv"
 
+#ifdef _WIN64  // Проверка на 64-битную версию Windows
+    #define EXPORT __declspec(dllexport)
+#elif defined(_WIN32)  // Проверка на 32-битную версию Windows
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT __attribute__((visibility("default")))
+#endif
 
 // Определение функций правой части системы
 extern "C" {
@@ -45,7 +52,7 @@ void rungeKuttaStep(double& x, double& y1, double& y2, double h, double a, doubl
 }
 
 // Метод Рунге-Кутты 4-го порядка без контроля локальной погрешности
-extern "C" {
+extern "C" EXPORT
 int rungeKutta(double x0, double y10, double y20, double h, double xmax, double a, double b, int maxSteps) {
     double x = x0;
     double y1 = y10;
@@ -65,10 +72,10 @@ int rungeKutta(double x0, double y10, double y20, double h, double xmax, double 
     output.close();
     return 0;
 }
-}
 
 
-extern "C" {
+
+extern "C" EXPORT
 int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax, double a, double b, int maxSteps, double tolerance, double edge) {
 
     double x = x0;
@@ -159,7 +166,7 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
     output.close();
     return 0;
 }
-}
+
 
 int main() {
     setlocale(LC_ALL, "Russian");
@@ -178,7 +185,8 @@ int main() {
 
 
     //Вызов rungeKuttaAdaptive с данными переменными
-    rungeKuttaAdaptive(x0, y10, y20, h0, xmax, a, b, maxSteps, tolerance, edge);
+    //rungeKuttaAdaptive(x0, y10, y20, h0, xmax, a, b, maxSteps, tolerance, edge);
+    //rungeKutta(x0, y10, y20, h0, xmax, a, b, maxSteps);
 
     return 0;
 }
