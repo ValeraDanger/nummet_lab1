@@ -1,0 +1,25 @@
+{
+    "initialConditions": {
+        "X0": "0",
+        "UX0": "0",
+        "DUX0": "1"
+    },
+    "xlimits": {
+        "endX": "10",
+        "epsilonBorder": "1e-7"
+    },
+    "numericalIntegrationParameters": {
+        "h0": "1e-3",
+        "controlLocalError": true,
+        "epsilon": "1e-7",
+        "to_be_control_local_error": true
+    },
+    "abinput": {
+        "a": "1",
+        "b": "1"
+    },
+    "amountOfSteps": "10000",
+    "selectedGraph": "u - u'(x)",
+    "csv_filename": "main_task_2 interesting.csv",
+    "task_number": 2
+}
