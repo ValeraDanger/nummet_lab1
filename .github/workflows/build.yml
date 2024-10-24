@@ -1,0 +1,33 @@
+name: Build and Commit Shared Libraries
+
+on:
+  push:
+    branches: [ main ] # Или ваша главная ветка
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create libs directory # <--  Создаем папку, если ее нет
+        run: mkdir libs
+        working-directory: ./
+
+      - name: Compile shared libraries
+        run: |
+          g++ -shared -fPIC -o libs/l1_1.so l1_1.cpp
+          g++ -shared -fPIC -o libs/l1_2.so l1_2.cpp
+          g++ -shared -fPIC -o libs/l1_test.so l1_test.cpp
+        working-directory: ./
+
+      - name: Commit and push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'libs/*.so' # <-- Измененный путь
+          message: 'Build: Update shared libraries'
+          author_name: github-actions[bot]
+          author_email: github-actions[bot]@users.noreply.github.com
+          github_token: ${{ secrets.ACTIONS_TOKEN  }}
