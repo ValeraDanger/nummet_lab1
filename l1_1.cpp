@@ -14,32 +14,33 @@
 #endif
 
 #ifdef _WIN64  // Проверка на 64-битную версию Windows
-    #define EXPORT __declspec(dllexport)
+#define EXPORT __declspec(dllexport)
 #elif defined(_WIN32)  // Проверка на 32-битную версию Windows
-    #define EXPORT __declspec(dllexport)
+#define EXPORT __declspec(dllexport)
 #else
-    #define EXPORT __attribute__((visibility("default")))
+#define EXPORT __attribute__((visibility("default")))
 #endif
 
 // Получаем абсолютный путь к DLL/so/dylib, в которой находится эта функция
 EXPORT std::filesystem::path getThisLibraryPath() {
 #ifdef _WIN32
-  HMODULE hModule = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | 
-                                      GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                                      (LPCSTR)&getThisLibraryPath, 
-                                      &hModule);
-  if (hModule != NULL) {
-    char buffer[MAX_PATH];
-    GetModuleFileNameA(hModule, buffer, MAX_PATH);
-    return std::filesystem::path(buffer);
-  }
+    HMODULE hModule;
+    BOOL success = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+        (LPCSTR)&getThisLibraryPath,
+        &hModule);
+    if (success) {
+        char buffer[MAX_PATH];
+        GetModuleFileNameA(hModule, buffer, MAX_PATH);
+        return std::filesystem::path(buffer);
+    }
 #else
-  Dl_info info;
-  if (dladdr((void*)&getThisLibraryPath, &info) != 0) {
-    return std::filesystem::path(info.dli_fname);
-  }
+    Dl_info info;
+    if (dladdr((void*)&getThisLibraryPath, &info) != 0) {
+        return std::filesystem::path(info.dli_fname);
+    }
 #endif
-  return ""; // Возвращаем пустой путь в случае ошибки
+    return ""; // Возвращаем пустой путь в случае ошибки
 }
 
 
@@ -47,12 +48,9 @@ EXPORT std::filesystem::path getThisLibraryPath() {
 // Формируем абсолютный путь к output
 EXPORT std::string getOutputPath() {
     std::filesystem::path executablePath = getThisLibraryPath();
-    std::filesystem::path outputPath = executablePath.parent_path() / ".."/ ".." / "output" / "output_1.csv";
+    std::filesystem::path outputPath = executablePath.parent_path() / ".." / ".." / "output" / "output_1.csv";
     return outputPath.string();
 }
-
-// Определяем OUT_PATH с использованием функции getOutputPath()
-//#define OUT_PATH getOutputPath().c_str() 
 
 extern "C" EXPORT
     double f(const double &x, const double &y)
