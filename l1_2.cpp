@@ -86,8 +86,8 @@ void rungeKuttaStep(double& x, double& y1, double& y2, double h, double a, doubl
     y1 = y1 + h * (ky11 + 2 * ky12 + 2 * ky13 + ky14) / 6;
     y2 = y2 + h * (ky21 + 2 * ky22 + 2 * ky23 + ky24) / 6;
 
-    if (std::isinf(y1) || std::isnan(y1) || std::fabs(y1) > std::numeric_limits<double>::max() ||
-        std::isinf(y2) || std::isnan(y2) || std::fabs(y2) > std::numeric_limits<double>::max()) {
+    if (std::isinf(y1) || std::isnan(y1) || std::fabs(y1) > DBL_MAX ||
+        std::isinf(y2) || std::isnan(y2) || std::fabs(y2) > DBL_MAX) {
         throw std::overflow_error("Value is NaN. | Value is infinite. | Value exceeds the maximum representable double.");
     }
 
