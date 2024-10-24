@@ -1,7 +1,14 @@
 #include <fstream>
 #include <cmath>
+#include <filesystem>
+#include <string>
 
-#define OUT_PATH "../../output/output_1.csv"
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#include <limits.h> // Для PATH_MAX (Linux/macOS)
+#endif
 
 #ifdef _WIN64  // Проверка на 64-битную версию Windows
     #define EXPORT __declspec(dllexport)
@@ -11,15 +18,42 @@
     #define EXPORT __attribute__((visibility("default")))
 #endif
 
-extern "C" {
+// Получаем абсолютный путь к исполняемому файлу
+std::filesystem::path getExecutablePath() {
+#ifdef _WIN32
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    return buffer;
+#else
+    char buffer[PATH_MAX];
+    ssize_t len = ::readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+    if (len != -1) {
+        buffer[len] = '\0';
+        return buffer;
+    }
+    return ""; // Возвращаем пустой путь в случае ошибки
+#endif
+}
+
+// Формируем абсолютный путь к output
+std::string getOutputPath() {
+    std::filesystem::path executablePath = getExecutablePath();
+    std::filesystem::path outputPath = executablePath.parent_path() / ".." / ".." /"output" / "output_1.csv";
+    return outputPath.string();
+}
+
+// Определяем OUT_PATH с использованием функции getOutputPath()
+#define OUT_PATH getOutputPath().c_str() 
+
+extern "C" EXPORT
     double f(const double &x, const double &y)
     {
         return pow(y, 2)*x / ( 1+pow(x, 2) ) + y - pow(y, 3)*std::sin(10 * x);
     }
-}
+
 
 // Метод Рунге-Кутта четвертого порядка
-extern "C" {
+extern "C" EXPORT
     double RK_4_Step(const double &x, const double &y,const double &h)
     {
         double k1 = h * f(x, y);
@@ -35,7 +69,7 @@ extern "C" {
 
         return y_next;
     }
-}
+
 
 extern "C" EXPORT
     int RK_4(double x0, double y0, double h, double xmax, int maxSteps)
@@ -46,7 +80,7 @@ extern "C" EXPORT
         std::ofstream output(OUT_PATH);
 
         output << "xi;vi" << std::endl;   // Заголовок CSV
-        while (x + h < xmax && steps < maxSteps) {
+        while (x < xmax && steps < maxSteps) {
 
             y = RK_4_Step(x, y, h);
             x = x + h;  //Увеличиваем шаг перед выводом, т.к. метод Р.К. считает значение в следующей точке
@@ -59,7 +93,7 @@ extern "C" EXPORT
     }
 
 
-extern "C"  EXPORT
+extern "C" EXPORT
     int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, double eps_out, int Nmax)
     {
         double x = x0;
@@ -127,13 +161,13 @@ int main()
     setlocale(LC_ALL, "Russian");
     double x0 = 0.;            // Начальная точка x
     double y0 = 1.0;            // Начальное значение y
-    double h0 = 0.1;            // Начальный размер шага
-    double xmax = 10.0;          // Граница x
+    double h0 = 0.00001;            // Начальный размер шага
+    double xmax = 20.0;          // Граница x
     double tolerance = 1e-6;   // Заданная точность
     double edge = 0.001;
     int maxSteps = 1000;         // Максимальное количество шагов
 
-    //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
+    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
     //RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;
