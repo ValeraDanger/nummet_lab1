@@ -114,7 +114,7 @@ extern "C" {
             h = xmax - x;
             //++c1;
             // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
-            y1 = RK_4_Step(x, y, h);
+            y1 = RK_4_Step(x, y, h); //
             y2 = RK_4_Step(x, y, h / 2);
             y2 = RK_4_Step(x + h / 2, y2, h / 2);
 
