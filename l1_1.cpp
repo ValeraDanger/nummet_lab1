@@ -89,7 +89,7 @@ extern "C" EXPORT
         std::ofstream output(getOutputPath().c_str());
 
         output << "xi;vi" << std::endl;   // Заголовок CSV
-        while (x < xmax && steps < maxSteps) {
+        while (x+h <= xmax && steps < maxSteps) {
 
             y = RK_4_Step(x, y, h);
             x = x + h;  //Увеличиваем шаг перед выводом, т.к. метод Р.К. считает значение в следующей точке
@@ -120,7 +120,7 @@ extern "C" EXPORT
 
         output << "xi;vi;v2i;vi-v2i;E;hi;c1;c2" << std::endl; // Заголовок CSV
         
-        while ((x + h) < xmax && std::abs(x + h - xmax)>eps_out && step < Nmax)
+        while ((x + h) <= xmax && std::abs(x + h - xmax)>eps_out && step < Nmax)
         {
             
             // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
@@ -159,6 +159,19 @@ extern "C" EXPORT
             }
         }
 
+        if (x + h > xmax)
+        {
+            h = xmax - x;
+            //++c1;
+            // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
+            y1 = RK_4_Step(x, y, h);
+            y2 = RK_4_Step(x, y, h / 2);
+            y2 = RK_4_Step(x + h / 2, y2, h / 2);
+
+            output << x+h << ";" << y1 << ";" << y2 << ";" << y1-y2 << ";" << error * pow(2, p) << ";" << h << ";" << c1 << ";" << c2 << std::endl;
+
+        }
+
 
         output.close();
     return 0;
@@ -170,11 +183,11 @@ int main()
     setlocale(LC_ALL, "Russian");
     double x0 = 0.;            // Начальная точка x
     double y0 = 1.0;            // Начальное значение y
-    double h0 = 0.00001;            // Начальный размер шага
-    double xmax = 20.0;          // Граница x
-    double tolerance = 1e-6;   // Заданная точность
-    double edge = 0.001;
-    int maxSteps = 1000;         // Максимальное количество шагов
+    double h0 = 0.01;            // Начальный размер шага
+    double xmax = 1.0054534534562;          // Граница x
+    double tolerance = 1e-10;   // Заданная точность
+    double edge = 1e-6;
+    int maxSteps = 10000;         // Максимальное количество шагов
 
     //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
     //RK_4(x0, y0, h0, xmax, maxSteps);
