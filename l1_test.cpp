@@ -50,7 +50,7 @@ EXPORT std::filesystem::path getThisLibraryPath() {
 // Формируем абсолютный путь к output
 EXPORT std::string getOutputPath() {
     std::filesystem::path executablePath = getThisLibraryPath();
-    std::filesystem::path outputPath = executablePath.parent_path() / ".." / ".." / "output" / "l1_test.csv";
+    std::filesystem::path outputPath = executablePath.parent_path() / ".." / ".." / "output" / "output_test.csv";
     return outputPath.string();
 }
 
