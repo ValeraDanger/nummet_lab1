@@ -120,7 +120,7 @@ extern "C" EXPORT
 
         output << "xi;vi;v2i;vi-v2i;E;hi;c1;c2" << std::endl; // Заголовок CSV
         
-        while ((x + h) <= xmax && std::abs(x + h - xmax)>eps_out && step < Nmax)
+        while ((x + h) <= xmax && std::abs(x - xmax)>eps_out && step < Nmax)
         {
             
             // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
@@ -184,12 +184,12 @@ int main()
     double x0 = 0.;            // Начальная точка x
     double y0 = 1.0;            // Начальное значение y
     double h0 = 0.01;            // Начальный размер шага
-    double xmax = 1.0054534534562;          // Граница x
-    double tolerance = 1e-10;   // Заданная точность
-    double edge = 1e-6;
+    double xmax = 0.4;          // Граница x
+    double tolerance = 1e-15;   // Заданная точность
+    double edge = 1e-3;
     int maxSteps = 10000;         // Максимальное количество шагов
 
-    //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
+    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
     //RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;

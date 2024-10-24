@@ -128,7 +128,7 @@ int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, doub
     // Заголовок CSV с разделителем ;
     output << "x;v;v2i;v-v2i;E;h;c1;c2;u;|ui-vi|" << std::endl;
 
-    while (x + h <= xmax && std::abs(x + h - xmax) > eps_out && step < Nmax) {
+    while (x + h <= xmax && std::abs(x - xmax) > eps_out && step < Nmax) {
 
         // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
         y1 = RK_4_Step(x, y, h);
@@ -198,7 +198,7 @@ int main()
     double edge = 1e-6;
     int maxSteps = 1000;
 
-    //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge, maxSteps);
+    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge, maxSteps);
     // RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;

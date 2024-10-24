@@ -143,7 +143,7 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
     output << "xi;vi;vi2;v'i;v'i2;vi-vi2;v'i-v'i2;hi;E;E_v;E_v';c1;c2" << std::endl;
 
 
-    while (x + h <= xmax && std::abs(x + h - xmax) > edge && step < maxSteps) {
+    while (x + h <= xmax && std::abs(x - xmax) > edge && step < maxSteps) {
 
         xtmp = x;
         y1tmp = y1;
@@ -247,13 +247,13 @@ int main() {
     double xmax = 10.435634972918;
     double a = 1.0;
     double b = 1.0;
-    int maxSteps = 1000.;
+    int maxSteps = 1000;
     double tolerance = 1e-7;
     double edge = 1e-7;
 
 
     //Вызов rungeKuttaAdaptive с данными переменными
-    //rungeKuttaAdaptive(x0, y10, y20, h0, xmax, a, b, maxSteps, tolerance, edge);
+    rungeKuttaAdaptive(x0, y10, y20, h0, xmax, a, b, maxSteps, tolerance, edge);
 
     return 0;
 }
