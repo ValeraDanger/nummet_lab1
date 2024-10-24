@@ -1,7 +1,7 @@
 #include <fstream>
 #include <cmath>
 
-#define OUT_PATH "output/output_1.csv"
+#define OUT_PATH "../../output/output_1.csv"
 
 #ifdef _WIN64  // Проверка на 64-битную версию Windows
     #define EXPORT __declspec(dllexport)

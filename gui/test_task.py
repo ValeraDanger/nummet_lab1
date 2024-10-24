@@ -62,6 +62,7 @@ class TestTaskPlotter:
             self.graph_layout.plot(x, v, label="Численное решение")
 
         if self.show_real_solve_checkbox.isChecked():
+            print(f"x {x} \ny {u}")
             self.graph_layout.plot(x, u, label="Аналитическое решение")
 
         # Заголовок выводится только один раз при инициализации

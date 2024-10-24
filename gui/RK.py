@@ -62,6 +62,7 @@ class l1_test:
     def __init__(self):
         dynamicLibrary = CPPDynamicLibrary()
         lib_path = dynamicLibrary.getPathTo("l1_test")
+        print(f"load {lib_path}")
         if not os.path.exists(lib_path):
             raise FileNotFoundError(f"Не найден файл DLL по пути: {lib_path}")
         self.lib = ctypes.CDLL(lib_path)
@@ -74,14 +75,16 @@ class l1_test:
     def rk_4(self, x0: float, y0: float, h:float, xmax:float, maxSteps: int):
         #int RK_4(double x0, double y0, double h, double xmax, int maxSteps)
         code = self.lib.RK_4(x0, y0, h, xmax, maxSteps)
+        print(code)
         if code != 0:
             raise Exception("Something went wrong")
-        return self.getResult()
+        #return self.getResult()
     def rk4_adaptive(self, x0: float, y0: float, h0: float, xmax: float, eps: float, eps_out:float, n_max:int):
         code = self.lib.RK_4_adaptive(x0, y0, h0, xmax, eps, eps_out, n_max)
+        print(code)
         if code != 0:
             raise Exception("Something went wrong")
-        return self.getResult()
+        #return self.getResult()
     def getResult(self):
         CSVReader = CSVReaderPandas('output_test.csv')
         headers, values = CSVReader.readAsNumpy()
