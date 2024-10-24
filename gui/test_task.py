@@ -416,11 +416,16 @@ class TabTestTask(QWidget):
 
     def tryLoadResult(self, to_be_control_local_error):
         try:
+            current_file_path = os.path.abspath(__file__)
+            current_dir = os.path.dirname(current_file_path)
+            current_dir = os.path.join(current_dir, "..") 
+            current_dir = os.path.join(current_dir, "output")
+            file_path = os.path.join(current_dir, "output_test.csv")
             if to_be_control_local_error:
-                self.df = pd.read_csv("output/output_test.csv", delimiter=";", header=None,
+                self.df = pd.read_csv(file_path, delimiter=";", header=None,
                                  names=['x', 'v', 'v2i', 'v-v2i', 'e', 'h', 'c1', 'c2', 'u', '|ui-vi|'])
             else:
-                self.df = pd.read_csv("output/output_test.csv", delimiter=";", header=None, names=['x', 'v', 'u'])
+                self.df = pd.read_csv(file_path, delimiter=";", header=None, names=['x', 'v', 'u'])
         except Exception as e:
             self.show_error(f"Ошибка во время загрузки: {e}")
 
@@ -439,12 +444,17 @@ class TabTestTask(QWidget):
 
     def load_dataframe(self, csv_filename, control_local_error):
         """Загружает DataFrame из CSV файла в зависимости от control_local_error."""
+        current_file_path = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file_path)
+        current_dir = os.path.join(current_dir, "..") 
+        current_dir = os.path.join(current_dir, "output")
+        file_path = os.path.join(current_dir, csv_filename)
         try:
             if control_local_error:
-                self.df = pd.read_csv(csv_filename, delimiter=";", header=None,
+                self.df = pd.read_csv(file_path, delimiter=";", header=None, low_memory=False,
                                        names=['x', 'v', 'v2i', 'v-v2i', 'e', 'h', 'c1', 'c2', 'u', '|ui-vi|'])
             else:
-                self.df = pd.read_csv(csv_filename, delimiter=";", header=None, names=['x', 'v', 'u'])
+                self.df = pd.read_csv(file_path, delimiter=";", low_memory=False, header=None, names=['x', 'v', 'u'])
         except Exception as e:
             self.show_error(f"Ошибка при загрузке DataFrame: {e}")
 

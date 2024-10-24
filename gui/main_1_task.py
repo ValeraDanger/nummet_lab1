@@ -198,7 +198,7 @@ class MainTask1UI:
 
     def _add_task_description(self):
         test_task_layout = LatexRendererLayout()
-        tex_task1 = r"$\frac{d^2 u}{dx} = \frac{x}{1 + x^2} \cdot u^2 + u - u^3 \cdot \sin{10x}$"
+        tex_task1 = r"$\frac{du}{dx} = \frac{x}{1 + x^2} \cdot u^2 + u - u^3 \cdot \sin{10x}$"
         test_task_layout.render(tex_task1)
         self.main_layout.addLayout(test_task_layout, 1)
 
@@ -382,11 +382,16 @@ class TabMainTask1(QWidget):
 
     def tryLoadResult(self, to_be_control_local_error):
         try:
+            current_file_path = os.path.abspath(__file__)
+            current_dir = os.path.dirname(current_file_path)
+            current_dir = os.path.join(current_dir, "..") 
+            current_dir = os.path.join(current_dir, "output")
+            file_path = os.path.join(current_dir, "output_1.csv")
             if to_be_control_local_error:
-                self.df = pd.read_csv("output/output_1.csv", delimiter=";", header=None,
+                self.df = pd.read_csv(file_path, delimiter=";", header=None,
                                  names=['x', 'v', 'v2i', 'v-v2i', 'e', 'h', 'c1', 'c2'])
             else:
-                self.df = pd.read_csv("output/output_1.csv", delimiter=";", header=None, names=['x', 'v'])
+                self.df = pd.read_csv(file_path, delimiter=";", header=None, names=['x', 'v'])
         except Exception as e:
             self.show_error(f"Ошибка во время загрузки: {e}")
 
@@ -407,10 +412,10 @@ class TabMainTask1(QWidget):
         """Загружает DataFrame из CSV файла в зависимости от control_local_error."""
         try:
             if control_local_error:
-                self.df = pd.read_csv(csv_filename, delimiter=";", header=None,
+                self.df = pd.read_csv(csv_filename, delimiter=";", header=None, low_memory=False, 
                                        names=['x', 'v', 'v2i', 'v-v2i', 'e', 'h', 'c1', 'c2'])
             else:
-                self.df = pd.read_csv(csv_filename, delimiter=";", header=None, names=['x', 'v'])
+                self.df = pd.read_csv(csv_filename, delimiter=";", header=None, names=['x', 'v'], low_memory=False)
         except Exception as e:
             self.show_error(f"Ошибка при загрузке DataFrame: {e}")
 

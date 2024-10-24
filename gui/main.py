@@ -3,6 +3,10 @@ from main_1_task import *
 from main_2_task import *
 from PySide6.QtWidgets import QMainWindow, QTabWidget
 
+# Сделать логарифмическую шкалу галочку
+# Максимальное ОЛП в точке какой?
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()

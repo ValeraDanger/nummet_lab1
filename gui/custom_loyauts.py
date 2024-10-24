@@ -8,6 +8,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 class GraphLayout(QVBoxLayout):
     def __init__(self):
         super().__init__()
+        #self.log_scale_check_box = 
         self.canvas = MatplotlibGraph(self)
         self.addWidget(self.canvas)
 

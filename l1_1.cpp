@@ -46,7 +46,7 @@ extern "C" EXPORT
         std::ofstream output(OUT_PATH);
 
         output << "xi;vi" << std::endl;   // Заголовок CSV
-        while (x < xmax && steps < maxSteps) {
+        while (x + h < xmax && steps < maxSteps) {
 
             y = RK_4_Step(x, y, h);
             x = x + h;  //Увеличиваем шаг перед выводом, т.к. метод Р.К. считает значение в следующей точке

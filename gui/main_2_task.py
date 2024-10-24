@@ -25,17 +25,23 @@ class MainTask2Plotter:
 
         if selected_graph == "x - u(x)":
             self.graph_layout.plot(x, u, label="u(x)")
+            self.graph_layout.set_ylabel('u') 
             self.graph_layout.set_xlabel("x")
         elif selected_graph == "x - u'(x)":
             self.graph_layout.plot(x, du, label="u'(x)")
             self.graph_layout.set_xlabel("x")
+            self.graph_layout.set_ylabel('\\dot{x}')
         elif selected_graph == "u - u'(x)":
             self.graph_layout.plot(u, du, label="u`(u)")
+            self.graph_layout.set_ylabel('\\dot{u}')
+            self.graph_layout.set_xlabel("u")
         elif selected_graph == "u`-u":
             self.graph_layout.plot(du, u, label="u(u`)")
+            self.graph_layout.set_xlabel('\\dot{u}')
+            self.graph_layout.set_ylabel("u")
 
         self.graph_layout.set_title(f"График: {selected_graph}")
-        self.graph_layout.set_ylabel(selected_graph)  # Подпись оси Y
+        
         self.graph_layout.legend()
         self.graph_layout.draw()
 
@@ -77,6 +83,8 @@ class MainTask2SettingsManager:
         }
 
         json_filename = filename + ".json"
+        #dirname, file = os.path.split(os.path.abspath(__file__))
+        #json_filename = os.path.join(dirname, (filename + ".json"))
         try:
             with open(json_filename, "w") as f:
                 json.dump(settings, f, indent=4)
@@ -337,12 +345,17 @@ class TabMainTask2(QWidget):
 
     def tryLoadResult(self, to_be_control_local_error):
         try:
+            current_file_path = os.path.abspath(__file__)
+            current_dir = os.path.dirname(current_file_path)
+            current_dir = os.path.join(current_dir, "..") 
+            current_dir = os.path.join(current_dir, "output")
+            file_path = os.path.join(current_dir, 'output_2.csv')
             if to_be_control_local_error:
-                self.df = pd.read_csv("output/output_2.csv", delimiter=";", header=None,
-                                 names=['x', 'u', 'u\'', 'u2i', 'u\'2i', 'u-u2i', 'u\'-u\'2i', 'h', 'e', 'e_v',
+                self.df = pd.read_csv(file_path, delimiter=";", header=None,
+                                 names=['x', 'u', 'u2i', 'u\'', 'u\'2i', 'u-u2i', 'u\'-u\'2i', 'h', 'e', 'e_v',
                                         'e_v\'', 'c1', 'c2'])  # Замена 'E' на 'e'
             else:
-                self.df = pd.read_csv("output/output_2.csv", delimiter=";", header=None, names=['x', 'u', 'u\''])
+                self.df = pd.read_csv(file_path, delimiter=";", header=None, names=['x', 'u', 'u\''])
         except Exception as e:
             self.show_error(f"Ошибка во время загрузки: {e}")
 
@@ -361,13 +374,18 @@ class TabMainTask2(QWidget):
 
     def load_dataframe(self, csv_filename, control_local_error):
         """Загружает DataFrame из CSV файла в зависимости от control_local_error."""
+        current_file_path = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file_path)
+        current_dir = os.path.join(current_dir, "..") 
+        current_dir = os.path.join(current_dir, "output")
+        file_path = os.path.join(current_dir, csv_filename)
         try:
             if control_local_error:
-                self.df = pd.read_csv(csv_filename, delimiter=";", header=None,
-                                       names=['x', 'u', 'u\'', 'u2i', 'u\'2i', 'u-u2i', 'u\'-u\'2i', 'h', 'e', 'e_v',
-                                              'e_v\'', 'c1', 'c2'])  # Замена 'E' на 'e'
+                self.df = pd.read_csv(file_path, delimiter=";", low_memory=False, header=None,
+                                       names=['x', 'u', 'u2i', 'u\'', 'u\'2i', 'u-u2i', 'u\'-u\'2i', 'h', 'e', 'e_v',
+                                        'e_v\'', 'c1', 'c2'])  # Замена 'E' на 'e'
             else:
-                self.df = pd.read_csv(csv_filename, delimiter=";", header=None, names=['x', 'u', 'u\''])
+                self.df = pd.read_csv(file_path, delimiter=";", header=None, low_memory=False, names=['x', 'u', 'u\''])
         except Exception as e:
             self.show_error(f"Ошибка при загрузке DataFrame: {e}")
 

@@ -1,0 +1,19 @@
+{
+    "initialConditions": {
+        "X0": "0",
+        "UX0": "1"
+    },
+    "xlimits": {
+        "endX": "0.4",
+        "epsilonBorder": "1e-3"
+    },
+    "numericalIntegrationParameters": {
+        "h0": "0.01",
+        "controlLocalError": true,
+        "epsilon": "1e-15",
+        "to_be_control_local_error": true
+    },
+    "amountOfSteps": "10000",
+    "csv_filename": "interesting 2.csv",
+    "task_number": 1
+}

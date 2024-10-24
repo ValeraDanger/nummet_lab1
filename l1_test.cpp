@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 #define OUT_PATH "output/output_test.csv"
 #ifdef _WIN64  // Проверка на 64-битную версию Windows
@@ -52,7 +52,7 @@ int RK_4(double x0, double y0, double h, double xmax, int Nmax)
 
     std::ofstream output(OUT_PATH);
     output << "x;v;u" << std::endl;     // Заголовок CSV с разделителем ;
-    while (x < xmax && step < Nmax) {
+    while (x + h <= xmax && step < Nmax) {
         y = RK_4_Step(x, y, h);
         x = x + h;
 
