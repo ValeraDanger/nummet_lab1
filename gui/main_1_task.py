@@ -155,7 +155,8 @@ class ReportGenerator:
         if 'e' in self.df.columns:  # Проверка наличия столбца 'e'
             E = self.getColumnValues('e')
             maxError = max(E)
-            report += f'Максимальное значение ОЛП {maxError}\n'
+            max_error_index = E.index(maxError)
+            report += f'Максимальное значение ОЛП {maxError} при x = {x[max_error_index]}\n'
             doubling = self.getColumnValues('c2')
             countOfDoubling = sum(doubling)
             report += f'Количество удвоений {countOfDoubling}\n'

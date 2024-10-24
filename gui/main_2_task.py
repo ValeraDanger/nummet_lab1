@@ -30,14 +30,14 @@ class MainTask2Plotter:
         elif selected_graph == "x - u'(x)":
             self.graph_layout.plot(x, du, label="u'(x)")
             self.graph_layout.set_xlabel("x")
-            self.graph_layout.set_ylabel('\\dot{x}')
+            self.graph_layout.set_ylabel('$\\dot{x}$')
         elif selected_graph == "u - u'(x)":
             self.graph_layout.plot(u, du, label="u`(u)")
-            self.graph_layout.set_ylabel('\\dot{u}')
+            self.graph_layout.set_ylabel('$\\dot{u}$')
             self.graph_layout.set_xlabel("u")
         elif selected_graph == "u`-u":
             self.graph_layout.plot(du, u, label="u(u`)")
-            self.graph_layout.set_xlabel('\\dot{u}')
+            self.graph_layout.set_xlabel('$\\dot{u}$')
             self.graph_layout.set_ylabel("u")
 
         self.graph_layout.set_title(f"График: {selected_graph}")
@@ -320,7 +320,8 @@ class TabMainTask2(QWidget):
             if self.to_be_control_local_error:
                 e = self.getColumnValues(self.df, 'e')  # Замена 'E' на 'e'
                 maxError = max(e)  # Замена 'E' на 'e'
-                report += f'Максимальное значение ОЛП {maxError}\n'
+                max_error_index = e.index(maxError)
+                report += f'Максимальное значение ОЛП {maxError} при x = {x[max_error_index]}\n'
                 doubling = self.getColumnValues(self.df, 'c2')
                 countOfDoubling = sum(doubling)
                 report += f'Количество удвоений {countOfDoubling}\n'

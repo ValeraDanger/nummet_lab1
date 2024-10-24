@@ -9,8 +9,17 @@ class GraphLayout(QVBoxLayout):
     def __init__(self):
         super().__init__()
         #self.log_scale_check_box = 
+        self.checkBoxLogScale =  QCheckBox("Логарифмическая шкала")
+        self.addWidget(self.checkBoxLogScale)
         self.canvas = MatplotlibGraph(self)
         self.addWidget(self.canvas)
+        self.checkBoxLogScale.checkStateChanged.connect(self.checkStateChangedLogScaleComboBox)
+    def checkStateChangedLogScaleComboBox(self):
+        if self.checkBoxLogScale.isChecked():
+            self.canvas.ax.set_yscale('log')
+        else:
+            self.canvas.ax.set_yscale('linear')
+        self.canvas.draw()
 
     def clear(self):
         self.canvas.clear()

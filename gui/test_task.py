@@ -62,7 +62,7 @@ class TestTaskPlotter:
             self.graph_layout.plot(x, v, label="Численное решение")
 
         if self.show_real_solve_checkbox.isChecked():
-            print(f"x {x} \ny {u}")
+            #print(f"x {x} \ny {u}")
             self.graph_layout.plot(x, u, label="Аналитическое решение")
 
         # Заголовок выводится только один раз при инициализации
@@ -71,7 +71,8 @@ class TestTaskPlotter:
 
         self.graph_layout.set_xlabel("x")
         self.graph_layout.set_ylabel("u(x)")
-        self.graph_layout.legend()
+        if (self.show_real_solve_checkbox.isChecked() or self.show_numeric_solve_checkbox.isChecked()):
+            self.graph_layout.legend()
         self.graph_layout.draw()
 
 # Класс для управления настройками
@@ -170,7 +171,8 @@ class ReportGenerator:
         if 'e' in self.df.columns:  # Проверка наличия столбца 'e'
             E = self.getColumnValues('e')
             maxError = max(E)
-            report += f'Максимальное значение ОЛП {maxError}\n'
+            max_error_index = E.index(maxError)
+            report += f'Максимальное значение ОЛП {maxError} при x = {x[max_error_index]}\n'
             doubling = self.getColumnValues('c2')
             countOfDoubling = sum(doubling)
             report += f'Количество удвоений {countOfDoubling}\n'
