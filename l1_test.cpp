@@ -1,31 +1,76 @@
 #include <fstream>
-#include <iostream>
 #include <cmath>
+#include <filesystem>
+#include <string>
+#include <limits>
+#include <filesystem>
 
-#define OUT_PATH "output/output_test.csv"
-#ifdef _WIN64  // Проверка на 64-битную версию Windows
-    #define EXPORT __declspec(dllexport)
-#elif defined(_WIN32)  // Проверка на 32-битную версию Windows
-    #define EXPORT __declspec(dllexport)
+#include <cfloat> // Для DBL_MAX
+
+#ifdef _WIN32
+#include <Windows.h>
 #else
-    #define EXPORT __attribute__((visibility("default")))
+#include <unistd.h>
+#include <dlfcn.h>
+//#include <limits.h> // Для PATH_MAX (Linux/macOS)
 #endif
 
-extern "C" {
+#ifdef _WIN64  // Проверка на 64-битную версию Windows
+#define EXPORT __declspec(dllexport)
+#elif defined(_WIN32)  // Проверка на 32-битную версию Windows
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT __attribute__((visibility("default")))
+#endif
+
+// Получаем абсолютный путь к DLL/so/dylib, в которой находится эта функция
+EXPORT std::filesystem::path getThisLibraryPath() {
+#ifdef _WIN32
+    HMODULE hModule;
+    BOOL success = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+        (LPCSTR)&getThisLibraryPath,
+        &hModule);
+    if (success) {
+        char buffer[MAX_PATH];
+        GetModuleFileNameA(hModule, buffer, MAX_PATH);
+        return std::filesystem::path(buffer);
+    }
+#else
+    Dl_info info;
+    if (dladdr((void*)&getThisLibraryPath, &info) != 0) {
+        return std::filesystem::path(info.dli_fname);
+    }
+#endif
+    return ""; // Возвращаем пустой путь в случае ошибки
+}
+
+
+
+// Формируем абсолютный путь к output
+EXPORT std::string getOutputPath() {
+    std::filesystem::path executablePath = getThisLibraryPath();
+    std::filesystem::path outputPath = executablePath.parent_path() / ".." / ".." / "output" / "l1_test.csv";
+    return outputPath.string();
+}
+
+#define OUT_PATH getOutputPath().c_str()
+
+extern "C" EXPORT
     double f(const double &x, const double &y) {
         return y;                                           //Ввод функции
     }
-}
 
-extern "C" {
+
+extern "C" EXPORT
     double u(const double &x, const double &C)
     {
         return C * (std::exp(x));
     }
-}
+
 
 // Метод Рунге-Кутта четвертого порядка
-extern "C" {
+extern "C" EXPORT
 double RK_4_Step(const double &x, const double &y,const double &h)
 {
     double k1 = h * f(x, y);
@@ -35,13 +80,13 @@ double RK_4_Step(const double &x, const double &y,const double &h)
 
     double y_next = y + (k1 + 2. * k2 + 2. * k3 + k4) / 6.;
 
-    if (std::isinf(y_next) || std::isnan(y_next) || std::fabs(y_next) > std::numeric_limits<double>::max()) { 
+    if (std::isinf(y_next) || std::isnan(y_next) || std::fabs(y_next) > DBL_MAX) { 
         throw std::overflow_error("Value is NaN. | Value is infinite. | Value exceeds the maximum representable double.");
     }
 
     return y_next;
 }
-}
+
 
 extern "C" EXPORT
 int RK_4(double x0, double y0, double h, double xmax, int Nmax)
@@ -52,7 +97,7 @@ int RK_4(double x0, double y0, double h, double xmax, int Nmax)
 
     std::ofstream output(OUT_PATH);
     output << "x;v;u" << std::endl;     // Заголовок CSV с разделителем ;
-    while (x + h <= xmax && step < Nmax) {
+    while (x < xmax && step < Nmax) {
         y = RK_4_Step(x, y, h);
         x = x + h;
 
@@ -64,7 +109,7 @@ int RK_4(double x0, double y0, double h, double xmax, int Nmax)
 }
 
 
-extern "C"  EXPORT
+extern "C" EXPORT
 int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, double eps_out, int Nmax)
 {
     double x = x0;
@@ -129,6 +174,7 @@ int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, doub
 
 return 0;
 }
+
 
 int main()
 {
