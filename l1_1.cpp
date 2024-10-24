@@ -2,7 +2,7 @@
 #include <cmath>
 #include <filesystem>
 #include <string>
-
+#include <limits>
 #include <filesystem>
 
 #ifdef _WIN32
@@ -10,7 +10,7 @@
 #else
 #include <unistd.h>
 #include <dlfcn.h>
-#include <limits.h> // Для PATH_MAX (Linux/macOS)
+//#include <limits.h> // Для PATH_MAX (Linux/macOS)
 #endif
 
 #ifdef _WIN64  // Проверка на 64-битную версию Windows
@@ -52,7 +52,7 @@ EXPORT std::string getOutputPath() {
 }
 
 // Определяем OUT_PATH с использованием функции getOutputPath()
-#define OUT_PATH getOutputPath().c_str() 
+//#define OUT_PATH getOutputPath().c_str() 
 
 extern "C" EXPORT
     double f(const double &x, const double &y)
@@ -86,7 +86,7 @@ extern "C" EXPORT
         int steps = 0;
         double x = x0;
         double y = y0;
-        std::ofstream output(OUT_PATH);
+        std::ofstream output(getOutputPath().c_str());
 
         output << "xi;vi" << std::endl;   // Заголовок CSV
         while (x < xmax && steps < maxSteps) {
@@ -116,7 +116,7 @@ extern "C" EXPORT
         double error = 0.;
         int p = 4;
 
-        std::ofstream output(OUT_PATH);
+        std::ofstream output(getOutputPath().c_str());
 
         output << "xi;vi;v2i;vi-v2i;E;hi;c1;c2" << std::endl; // Заголовок CSV
         
