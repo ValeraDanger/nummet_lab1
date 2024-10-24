@@ -5,6 +5,8 @@
 #include <limits>
 #include <filesystem>
 
+#include <cfloat> // Для DBL_MAX
+
 #ifdef _WIN32
 #include <Windows.h>
 #else
@@ -70,7 +72,7 @@ extern "C" EXPORT
 
         double y_next = y + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
 
-        if (std::isinf(y_next) || std::isnan(y_next) || std::fabs(y_next) > std::numeric_limits<double>::max()) { 
+        if (std::isinf(y_next) || std::isnan(y_next) || std::fabs(y_next) > DBL_MAX) { 
             throw std::overflow_error("Value is NaN. | Value is infinite. | Value exceeds the maximum representable double.");
         }
 
