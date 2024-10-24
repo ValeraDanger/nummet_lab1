@@ -1,31 +1,75 @@
 #include <fstream>
 #include <cmath>
+#include <filesystem>
 #include <string>
-#include <limits> // Для std::numeric_limits
+#include <limits>
+#include <filesystem>
 
-#define OUT_PATH "output/output_2.csv"
+#include <cfloat> // Для DBL_MAX
 
-#ifdef _WIN64  // Проверка на 64-битную версию Windows
-    #define EXPORT __declspec(dllexport)
-#elif defined(_WIN32)  // Проверка на 32-битную версию Windows
-    #define EXPORT __declspec(dllexport)
+#ifdef _WIN32
+#include <Windows.h>
 #else
-    #define EXPORT __attribute__((visibility("default")))
+#include <unistd.h>
+#include <dlfcn.h>
+//#include <limits.h> // Для PATH_MAX (Linux/macOS)
 #endif
 
+#ifdef _WIN64  // Проверка на 64-битную версию Windows
+#define EXPORT __declspec(dllexport)
+#elif defined(_WIN32)  // Проверка на 32-битную версию Windows
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT __attribute__((visibility("default")))
+#endif
+
+// Получаем абсолютный путь к DLL/so/dylib, в которой находится эта функция
+EXPORT std::filesystem::path getThisLibraryPath() {
+#ifdef _WIN32
+    HMODULE hModule;
+    BOOL success = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+        (LPCSTR)&getThisLibraryPath,
+        &hModule);
+    if (success) {
+        char buffer[MAX_PATH];
+        GetModuleFileNameA(hModule, buffer, MAX_PATH);
+        return std::filesystem::path(buffer);
+    }
+#else
+    Dl_info info;
+    if (dladdr((void*)&getThisLibraryPath, &info) != 0) {
+        return std::filesystem::path(info.dli_fname);
+    }
+#endif
+    return ""; // Возвращаем пустой путь в случае ошибки
+}
+
+
+
+// Формируем абсолютный путь к output
+EXPORT std::string getOutputPath() {
+    std::filesystem::path executablePath = getThisLibraryPath();
+    std::filesystem::path outputPath = executablePath.parent_path() / ".." / ".." / "output" / "output_2.csv";
+    return outputPath.string();
+}
+
+#define OUT_PATH getOutputPath().c_str()
+
 // Определение функций правой части системы
-extern "C" {
+extern "C" EXPORT
 double f1(double x, double y1, double y2, double a, double b) {
     return y2;
 }
 
+extern "C" EXPORT
 double f2(double x, double y1, double y2, double a, double b) {
     return -a*y2 + b*sin(y1);
 }
-}
+
 
 // Метод Рунге-Кутты 4-го порядка (один шаг)
-extern "C" {
+extern "C" EXPORT
 void rungeKuttaStep(double& x, double& y1, double& y2, double h, double a, double b) {
     double ky11 = f1(x, y1, y2, a, b);
     double ky21 = f2(x, y1, y2, a, b);
@@ -49,7 +93,7 @@ void rungeKuttaStep(double& x, double& y1, double& y2, double h, double a, doubl
 
     x = x + h;
 }
-}
+
 
 // Метод Рунге-Кутты 4-го порядка без контроля локальной погрешности
 extern "C" EXPORT
@@ -186,7 +230,6 @@ int main() {
 
     //Вызов rungeKuttaAdaptive с данными переменными
     //rungeKuttaAdaptive(x0, y10, y20, h0, xmax, a, b, maxSteps, tolerance, edge);
-    //rungeKutta(x0, y10, y20, h0, xmax, a, b, maxSteps);
 
     return 0;
 }
