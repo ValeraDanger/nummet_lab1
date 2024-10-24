@@ -3,10 +3,13 @@
 #include <filesystem>
 #include <string>
 
+#include <filesystem>
+
 #ifdef _WIN32
 #include <Windows.h>
 #else
 #include <unistd.h>
+#include <dlfcn.h>
 #include <limits.h> // Для PATH_MAX (Linux/macOS)
 #endif
 
@@ -18,27 +21,33 @@
     #define EXPORT __attribute__((visibility("default")))
 #endif
 
-// Получаем абсолютный путь к исполняемому файлу
-std::filesystem::path getExecutablePath() {
+// Получаем абсолютный путь к DLL/so/dylib, в которой находится эта функция
+EXPORT std::filesystem::path getThisLibraryPath() {
 #ifdef _WIN32
+  HMODULE hModule = GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | 
+                                      GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                                      (LPCSTR)&getThisLibraryPath, 
+                                      &hModule);
+  if (hModule != NULL) {
     char buffer[MAX_PATH];
-    GetModuleFileNameA(NULL, buffer, MAX_PATH);
-    return buffer;
+    GetModuleFileNameA(hModule, buffer, MAX_PATH);
+    return std::filesystem::path(buffer);
+  }
 #else
-    char buffer[PATH_MAX];
-    ssize_t len = ::readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
-    if (len != -1) {
-        buffer[len] = '\0';
-        return buffer;
-    }
-    return ""; // Возвращаем пустой путь в случае ошибки
+  Dl_info info;
+  if (dladdr((void*)&getThisLibraryPath, &info) != 0) {
+    return std::filesystem::path(info.dli_fname);
+  }
 #endif
+  return ""; // Возвращаем пустой путь в случае ошибки
 }
 
+
+
 // Формируем абсолютный путь к output
-std::string getOutputPath() {
-    std::filesystem::path executablePath = getExecutablePath();
-    std::filesystem::path outputPath = executablePath.parent_path() / ".." / ".." /"output" / "output_1.csv";
+EXPORT std::string getOutputPath() {
+    std::filesystem::path executablePath = getThisLibraryPath();
+    std::filesystem::path outputPath = executablePath.parent_path() / ".."/ ".." / "output" / "output_1.csv";
     return outputPath.string();
 }
 
@@ -167,7 +176,7 @@ int main()
     double edge = 0.001;
     int maxSteps = 1000;         // Максимальное количество шагов
 
-    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
+    //RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
     //RK_4(x0, y0, h0, xmax, maxSteps);
 
     return 0;
