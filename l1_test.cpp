@@ -46,7 +46,7 @@ int RK_4(double x0, double y0, double h, double xmax, int Nmax)
 
     std::ofstream output(OUT_PATH);
     output << "x;v;u" << std::endl;     // Заголовок CSV с разделителем ;
-    while (x < xmax && step < Nmax) {
+    while (x+h <= xmax && step < Nmax) {
         y = RK_4_Step(x, y, h);
         x = x + h;
 
@@ -77,7 +77,7 @@ int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, doub
     // Заголовок CSV с разделителем ;
     output << "x;v;v2i;v-v2i;E;h;c1;c2;u;|ui-vi|" << std::endl;
 
-    while (x + h < xmax && std::abs(x + h - xmax) > eps_out && step < Nmax) {
+    while (x + h <= xmax && std::abs(x + h - xmax) > eps_out && step < Nmax) {
 
         // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
         y1 = RK_4_Step(x, y, h);
@@ -116,7 +116,18 @@ int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, doub
         }
     }
 
+    if (x + h > xmax)
+    {
+        h = xmax - x;
+        //++c1;
+        // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
+        y1 = RK_4_Step(x, y, h);
+        y2 = RK_4_Step(x, y, h / 2);
+        y2 = RK_4_Step(x + h / 2, y2, h / 2);
 
+        output << x+h << ";" << y1 << ";" << y2 << ";" << y1-y2 << ";" << error * pow(2, p) << ";" << h << ";" << c1 << ";" << c2 << ";" << u(x, y0) << ";" << std::fabs(u(x, y0) - y) << std::endl;
+
+    }
 
 
     output.close();
@@ -131,9 +142,9 @@ int main()
     double x0 = 0.0;     
     double y0 = 1.0;         
     double h0 = 0.1;          
-    double xmax = 20.0;   
+    double xmax = 10.6657953;   
     double tolerance = 1e-6; 
-    double edge = 0.1;
+    double edge = 1e-6;
     int maxSteps = 1000;
 
     RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge, maxSteps);

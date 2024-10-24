@@ -55,7 +55,7 @@ int rungeKutta(double x0, double y10, double y20, double h, double xmax, double 
     output << "xi;vi1;vi2" << std::endl;  // Заголовок CSV
 
     int step = 0;
-    while (x < xmax && step < maxSteps) {
+    while (x+h <= xmax && step < maxSteps) {
         rungeKuttaStep(x, y1, y2, h, a, b);
 
         output << x << ";" << y1 << ";" << y2 << std::endl; // Вывод с разделителем ;
@@ -92,7 +92,7 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
     output << "xi;vi;vi2;v'i;v'i2;vi-vi2;v'i-v'i2;hi;E;E_v;E_v';c1;c2" << std::endl;
 
 
-    while (x + h < xmax && std::abs(x + h - xmax) > edge && step < maxSteps) {
+    while (x + h <= xmax && std::abs(x + h - xmax) > edge && step < maxSteps) {
 
         xtmp = x;
         y1tmp = y1;
@@ -156,6 +156,30 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
 
     }
 
+    if (x + h > xmax)
+    {
+        h = xmax - x;
+        //++c1;
+        // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
+        xtmp = x;
+        y1tmp = y1;
+        y2tmp = y2;
+
+        rungeKuttaStep(x, y1, y2, h, a, b);
+
+        x_half = xtmp;
+        y1_half = y1tmp;
+        y2_half = y2tmp;
+        double h_half = h/2;
+
+
+        rungeKuttaStep(x_half, y1_half, y2_half, h_half, a, b);
+        rungeKuttaStep(x_half, y1_half, y2_half, h_half, a, b);
+
+        output << x << ";" << y1 << ";" << y1_half << ";" << y2 << ";" << y2_half << ";" << y1 - y1_half << ";" << y2-y2_half << ";" << h << ";" << error * pow(2, p) << ";" << s1 * pow(2, p) << ";" << s2 * pow(2, p) << ";" << c1 << ";" << c2 << std::endl;
+
+    } 
+
     output.close();
     return 0;
 }
@@ -168,11 +192,11 @@ int main() {
     double x0 = 0.0;
     double y10 = 0.0;
     double y20 = 1.0;
-    double h0 = 0.001;
-    double xmax = 1000.0;
+    double h0 = 0.1;
+    double xmax = 10.435634972918;
     double a = 1.0;
     double b = 1.0;
-    int maxSteps = 1000;
+    int maxSteps = 1000.;
     double tolerance = 1e-7;
     double edge = 1e-7;
 
