@@ -56,12 +56,43 @@ EXPORT std::string getOutputPath() {
 
 #define OUT_PATH getOutputPath().c_str()
 
+
+const double X0 = 0.0;
+const double Y10 = 0.0;
+const double Y20 = 1.0;
+const double H0 = 0.1;
+const double XMAX = 10.435634972918;
+const double A = 1.0;
+const double B = 1.0;
+const int MAX_STEPS = 1000;
+const double TOLERANCE = 1e-7;
+const double EDGE = 1e-7;
+
+
 // Определение функций правой части системы
+// Args:
+//    x - текущее значение x (double)
+//    y1 - текущее значение y1 (double)
+//    y2 - текущее значение y2 (double)
+//    a - параметр системы уравнений (double)
+//    b - параметр системы уравнений (double)
+// Returns:
+//    Значение функции f1 (double)
 extern "C" EXPORT
 double f1(double x, double y1, double y2, double a, double b) {
     return y2;
 }
 
+
+
+// Args:
+//    x - текущее значение x (double)
+//    y1 - текущее значение y1 (double)
+//    y2 - текущее значение y2 (double)
+//    a - параметр системы уравнений (double)
+//    b - параметр системы уравнений (double)
+// Returns:
+//    Значение функции f2 (double)
 extern "C" EXPORT
 double f2(double x, double y1, double y2, double a, double b) {
     return -a*y2 + b*sin(y1);
@@ -69,6 +100,15 @@ double f2(double x, double y1, double y2, double a, double b) {
 
 
 // Метод Рунге-Кутты 4-го порядка (один шаг)
+// Args:
+//    x - текущее значение x (double, передается по ссылке)
+//    y1 - текущее значение y1 (double, передается по ссылке)
+//    y2 - текущее значение y2 (double, передается по ссылке)
+//    h -  размер шага (double)
+//    a - параметр системы уравнений (double)
+//    b - параметр системы уравнений (double)
+// Returns:
+//     void (результат записывается в x, y1, y2)
 extern "C" EXPORT
 void rungeKuttaStep(double& x, double& y1, double& y2, double h, double a, double b) {
     double ky11 = f1(x, y1, y2, a, b);
@@ -96,6 +136,17 @@ void rungeKuttaStep(double& x, double& y1, double& y2, double h, double a, doubl
 
 
 // Метод Рунге-Кутты 4-го порядка без контроля локальной погрешности
+// Args:
+//     x0 - начальное значение x (double)
+//     y10 - начальное значение y1 (double)
+//     y20 - начальное значение y2 (double)
+//     h - размер шага (double)
+//     xmax - конечное значение x (double)
+//     a - параметр системы уравнений (double)
+//     b - параметр системы уравнений (double)
+//     maxSteps - максимальное число шагов (int)
+// Returns:
+//     0 - если вычисления прошли успешно.
 extern "C" EXPORT
 int rungeKutta(double x0, double y10, double y20, double h, double xmax, double a, double b, int maxSteps) {
     double x = x0;
@@ -118,7 +169,19 @@ int rungeKutta(double x0, double y10, double y20, double h, double xmax, double 
 }
 
 
-
+// Args:
+//     x0 - начальное значение x (double)
+//     y10 - начальное значение y1 (double)
+//     y20 - начальное значение y2 (double)
+//     h0 - начальный размер шага (double)
+//     xmax - конечное значение x (double)
+//     a - параметр системы уравнений (double)
+//     b - параметр системы уравнений (double)
+//     maxSteps - максимальное число шагов (int)
+//     tolerance -  параметр контроля локальной погрешности (double)
+//     edge - эпсилон граничное (double)
+// Returns:
+//     0 - если вычисления прошли успешно
 extern "C" EXPORT
 int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax, double a, double b, int maxSteps, double tolerance, double edge) {
 
@@ -239,21 +302,8 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
 int main() {
     setlocale(LC_ALL, "Russian");
 
-    //определяем параметры для функции rungeKuttaAdaptive
-    double x0 = 0.0;
-    double y10 = 0.0;
-    double y20 = 1.0;
-    double h0 = 0.1;
-    double xmax = 10.435634972918;
-    double a = 1.0;
-    double b = 1.0;
-    int maxSteps = 1000;
-    double tolerance = 1e-7;
-    double edge = 1e-7;
-
-
-    //Вызов rungeKuttaAdaptive с данными переменными
-    rungeKuttaAdaptive(x0, y10, y20, h0, xmax, a, b, maxSteps, tolerance, edge);
+    //rungeKuttaAdaptive(X0, Y10, Y20, H0, XMAX, A, B, MAX_STEPS, TOLERANCE, EDGE);
+    //rungeKutta(X0, Y10, Y20, H0, XMAX, A, B, MAX_STEPS, TOLERANCE, EDGE);
 
     return 0;
 }

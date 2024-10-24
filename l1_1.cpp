@@ -54,6 +54,31 @@ EXPORT std::string getOutputPath() {
     return outputPath.string();
 }
 
+
+
+// Константы, используемые в программе
+// X0 - начальное значение x
+// Y0 - начальное значение y
+// H0 - начальный шаг
+// XMAX - конечное значение x
+// EPS - точность вычислений
+// EPS_OUT - точность выхода
+// NMAX - максимальное число шагов
+
+const double X0 = 0.0;
+const double Y0 = 1.0;
+const double H0 = 0.01;
+const double XMAX = 0.4;
+const double EPS = 1e-15;
+const double EPS_OUT = 1e-3;
+const int NMAX = 10000;
+
+
+// Args:
+//     x - значение независимой переменной (double)
+//     y - значение зависимой переменной (double)
+// Returns:
+//     Значение функции f(x, y) (double)
 extern "C" EXPORT
     double f(const double &x, const double &y)
     {
@@ -61,7 +86,14 @@ extern "C" EXPORT
     }
 
 
+
 // Метод Рунге-Кутта четвертого порядка
+// Args:
+//     x - значение независимой переменной (double)
+//     y - значение зависимой переменной (double)
+//     h - размер шага (double)
+// Returns:
+//     Значение y на следующем шаге (double)
 extern "C" EXPORT
     double RK_4_Step(const double &x, const double &y,const double &h)
     {
@@ -80,6 +112,15 @@ extern "C" EXPORT
     }
 
 
+
+// Args:
+//     x0 - начальное значение x (double)
+//     y0 - начальное значение y (double)
+//     h - размер шага (double)
+//     xmax - конечное значение x (double)
+//     maxSteps - максимальное число шагов (int)
+// Returns:
+//     0 - если вычисления прошли успешно.
 extern "C" EXPORT
     int RK_4(double x0, double y0, double h, double xmax, int maxSteps)
     {
@@ -101,7 +142,16 @@ extern "C" EXPORT
         return 0;
     }
 
-
+// Args:
+//     x0 - начальное значение x (double)
+//     y0 - начальное значение y (double)
+//     h0 - начальный размер шага (double)
+//     xmax - конечное значение x (double)
+//     eps - заданная точность (double)
+//     eps_out -  точность выхода (double)
+//     Nmax - максимальное число шагов (int)
+// Returns:
+//     0 - если вычисления прошли успешно
 extern "C" EXPORT
     int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, double eps_out, int Nmax)
     {
@@ -181,16 +231,10 @@ extern "C" EXPORT
 int main()
 {
     setlocale(LC_ALL, "Russian");
-    double x0 = 0.;            // Начальная точка x
-    double y0 = 1.0;            // Начальное значение y
-    double h0 = 0.01;            // Начальный размер шага
-    double xmax = 0.4;          // Граница x
-    double tolerance = 1e-15;   // Заданная точность
-    double edge = 1e-3;
-    int maxSteps = 10000;         // Максимальное количество шагов
 
-    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge,maxSteps);
-    //RK_4(x0, y0, h0, xmax, maxSteps);
+    //RK_4_adaptive(X0, Y0, H0, XMAX, EPS, EPS_OUT, NMAX);
+    //RK_4(X0, Y0, H0, XMAX, EPS, EPS_OUT, NMAX);
+
 
     return 0;
 }

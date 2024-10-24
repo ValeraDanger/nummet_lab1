@@ -23,6 +23,26 @@
 #define EXPORT __attribute__((visibility("default")))
 #endif
 
+
+// Константы, используемые в программе
+// X0 - начальное значение x
+// Y0 - начальное значение y
+// H0 - начальный шаг
+// XMAX - конечное значение x
+// EPS - точность вычислений
+// EPS_OUT - точность выхода
+// NMAX - максимальное число шагов
+
+const double X0 = 0.0;
+const double Y0 = 1.0;
+const double H0 = 0.1;
+const double XMAX = 10.6657953;
+const double EPS = 1e-6;
+const double EPS_OUT = 1e-6;
+const int NMAX = 1000;
+
+
+
 // Получаем абсолютный путь к DLL/so/dylib, в которой находится эта функция
 EXPORT std::filesystem::path getThisLibraryPath() {
 #ifdef _WIN32
@@ -56,12 +76,24 @@ EXPORT std::string getOutputPath() {
 
 #define OUT_PATH getOutputPath().c_str()
 
+// Правая часть дифференциального уравнения dy/dx = f(x, y)
+// Args:
+//     x - значение независимой переменной (double)
+//     y - значение зависимой переменной (double)
+// Returns:
+//     Значение функции f(x, y) (double)
 extern "C" EXPORT
     double f(const double &x, const double &y) {
-        return y;                                           //Ввод функции
+        return y;                                           
     }
 
 
+// Аналитическое решение u(x, C) = C * exp(x)
+// Args:
+//     x - значение независимой переменной (double)
+//     C - константа интегрирования (double)
+// Returns:
+//     Значение аналитического решения u(x, C) (double)
 extern "C" EXPORT
     double u(const double &x, const double &C)
     {
@@ -69,7 +101,13 @@ extern "C" EXPORT
     }
 
 
-// Метод Рунге-Кутта четвертого порядка
+// шаг Метод Рунге-Кутта четвертого порядка
+// Args:
+//     x - значение независимой переменной (double)
+//     y - значение зависимой переменной (double)
+//     h - размер шага (double)
+// Returns:
+//     Значение y на следующем шаге (double)
 extern "C" EXPORT
 double RK_4_Step(const double &x, const double &y,const double &h)
 {
@@ -87,7 +125,15 @@ double RK_4_Step(const double &x, const double &y,const double &h)
     return y_next;
 }
 
-
+// Метод Рунге-Кутта 4-го порядка без контроля локальной погрешности
+// Args:
+//     x0 - начальное значение x (double)
+//     y0 - начальное значение y (double)
+//     h - размер шага (double)
+//     xmax - конечное значение x (double)
+//     Nmax - максимальное число шагов (int)
+// Returns:
+//     0 - если вычисления прошли успешно.
 extern "C" EXPORT
 int RK_4(double x0, double y0, double h, double xmax, int Nmax)
 {
@@ -108,7 +154,17 @@ int RK_4(double x0, double y0, double h, double xmax, int Nmax)
     return 0;
 }
 
-
+// Метод Рунге-Кутта 4-го порядка с контролем локальной погрешности
+// Args:
+//     x0 - начальное значение x (double)
+//     y0 - начальное значение y (double)
+//     h0 - начальный размер шага (double)
+//     xmax - конечное значение x (double)
+//     eps - параметр контроля локальной погрешности (double)
+//     eps_out -  эпсилон граничное (double)
+//     Nmax - максимальное число шагов (int)
+// Returns:
+//     0 - если вычисления прошли успешно
 extern "C" EXPORT
 int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, double eps_out, int Nmax)
 {
@@ -125,7 +181,6 @@ int RK_4_adaptive(double x0, double y0, double h0, double xmax, double eps, doub
 
     std::ofstream output(OUT_PATH);
  
-    // Заголовок CSV с разделителем ;
     output << "x;v;v2i;v-v2i;E;h;c1;c2;u;|ui-vi|" << std::endl;
 
     while (x + h <= xmax && std::abs(x - xmax) > eps_out && step < Nmax) {
@@ -190,16 +245,9 @@ return 0;
 int main()
 {
     setlocale(LC_ALL, "Russian");
-    double x0 = 0.0;     
-    double y0 = 1.0;         
-    double h0 = 0.1;          
-    double xmax = 10.6657953;   
-    double tolerance = 1e-6; 
-    double edge = 1e-6;
-    int maxSteps = 1000;
 
-    RK_4_adaptive(x0, y0, h0, xmax, tolerance, edge, maxSteps);
-    // RK_4(x0, y0, h0, xmax, maxSteps);
+    //RK_4_adaptive(X0, Y0, H0, XMAX, EPS, EPS_OUT, NMAX);
+    //RK_4(X0, Y0, H0, XMAX, EPS, EPS_OUT, NMAX);
 
     return 0;
 }
