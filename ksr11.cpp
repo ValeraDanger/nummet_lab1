@@ -95,32 +95,9 @@ void rungeKuttaStep(double& x, double& y1, double& y2, double h, double K, doubl
 }
 
 
-// Метод Рунге-Кутты 4-го порядка без контроля локальной погрешности
-extern "C" EXPORT
-int rungeKutta(double x0, double y10, double y20, double h, double xmax, double a, double b, int maxSteps) {
-    double x = x0;
-    double y1 = y10;
-    double y2 = y20;
-
-    std::ofstream output(OUT_PATH);
-    output << "xi;vi1;vi2" << std::endl;  // Заголовок CSV
-
-    int step = 0;
-    while (x+h <= xmax && step < maxSteps) {
-        rungeKuttaStep(x, y1, y2, h, a, b);
-
-        output << x << ";" << y1 << ";" << y2 << std::endl; // Вывод с разделителем ;
-        step++;
-    }
-
-    output.close();
-    return 0;
-}
-
-
 
 extern "C" EXPORT
-int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax, double K, double L, int maxSteps, double tolerance, double edge) {
+int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double maxLength, double K, double L, int maxSteps, double tolerance, double edge) {
 
     double x = x0;
     double y1 = y10;
@@ -137,13 +114,15 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
     double error = 0.0;
     double s1, s2;
     int p = 4;
-
+    
+    double currentLength = 0.0; // Текущая длина стержня, для которой уже проведены рассчеты
+    bool is_currentLength_more_maxLength = false;
 
     std::ofstream output(OUT_PATH);
-    output << "xi;vi;vi2;v'i;v'i2;vi-vi2;v'i-v'i2;hi;E;E_v;E_v';c1;c2" << std::endl;
+    output << "xi;vi;vi2;v'i;v'i2;vi-vi2;v'i-v'i2;hi;E;E_v;E_v';c1;c2;currentLength_i" << std::endl;
 
 
-    while (x + h <= xmax && std::abs(x + h - xmax) > edge && step < maxSteps) {
+    while (currentLength + h <= maxLength && std::abs(currentLength + h - maxLength) > edge && step < maxSteps) {
 
         xtmp = x;
         y1tmp = y1;
@@ -168,8 +147,23 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
 
 
         if (error < tolerance / pow(2, p + 1)) {
+            // Вычисляем длину пройденного участка
+            double dx = x - xtmp;
+            double dy = y1 - y1tmp;
+            double segmentLength = std::sqrt(dx * dx + dy * dy);
+            currentLength += segmentLength; // Обновляем текущую длину
+
+            if (currentLength > maxLength) {
+                x = xtmp;
+                y1 = y1tmp;
+                y2 = y2tmp;
+                is_currentLength_more_maxLength = true;
+                currentLength -= segmentLength;
+                break; // Выходим из цикла, если достигли максимальной длины
+            }   
+
             c2++;
-            output << x << ";" << y1 << ";" << y1_half << ";" << y2 << ";" << y2_half << ";" << y1 - y1_half << ";" << y2-y2_half << ";" << h << ";" << error * pow(2, p) << ";" << s1 * pow(2, p) << ";" << s2 * pow(2, p) << ";" << c1 << ";" << c2 << std::endl;
+            output << x << ";" << y1 << ";" << y1_half << ";" << y2 << ";" << y2_half << ";" << y1 - y1_half << ";" << y2-y2_half << ";" << h << ";" << error * pow(2, p) << ";" << s1 * pow(2, p) << ";" << s2 * pow(2, p) << ";" << c1 << ";" << c2 << ";" << currentLength << std::endl;
             h *= 2;
         } else  {
             while (error > tolerance) {
@@ -197,7 +191,21 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
 
             }
 
-            output << x << ";" << y1 << ";" << y1_half << ";" << y2 << ";" << y2_half << ";" << y1 - y1_half << ";" << y2-y2_half << ";" << h << ";" << error * pow(2, p) << ";" << s1 * pow(2, p) << ";" << s2 * pow(2, p) << ";" << c1 << ";" << c2 << std::endl;
+            // Вычисляем длину пройденного участка
+            double dx = x - xtmp;
+            double dy = y1 - y1tmp;
+            double segmentLength = std::sqrt(dx * dx + dy * dy);
+            currentLength += segmentLength; // Обновляем текущую длину
+
+            if (currentLength > maxLength) {
+                x = xtmp;
+                y1 = y1tmp;
+                y2 = y2tmp;
+                currentLength -= segmentLength;
+                is_currentLength_more_maxLength = true;
+                break; // Выходим из цикла, если достигли максимальной длины
+            } 
+            output << x << ";" << y1 << ";" << y1_half << ";" << y2 << ";" << y2_half << ";" << y1 - y1_half << ";" << y2-y2_half << ";" << h << ";" << error * pow(2, p) << ";" << s1 * pow(2, p) << ";" << s2 * pow(2, p) << ";" << c1 << ";" << c2 << ";" << currentLength << std::endl;
         }
         
 
@@ -207,27 +215,54 @@ int rungeKuttaAdaptive(double x0, double y10, double y20, double h0, double xmax
 
     }
 
-    if (x + h > xmax)
-    {
-        h = xmax - x;
-        //++c1;
-        // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
-        xtmp = x;
-        y1tmp = y1;
-        y2tmp = y2;
+    if (currentLength + h > maxLength || is_currentLength_more_maxLength) {
+        bool should_decrease_step = true;
+        while (step < maxSteps) {
+            step++;
+            if(should_decrease_step) {
+                h = h/2;
+            }
+            c1++;
+            // Делаем шаг методом Рунге-Кутта с h и два шага с h/2
+            xtmp = x;
+            y1tmp = y1;
+            y2tmp = y2;
 
-        rungeKuttaStep(x, y1, y2, h, K, L);
+            rungeKuttaStep(x, y1, y2, h, K, L);
 
-        x_half = xtmp;
-        y1_half = y1tmp;
-        y2_half = y2tmp;
-        double h_half = h/2;
+            x_half = xtmp;
+            y1_half = y1tmp;
+            y2_half = y2tmp;
+            double h_half = h/2;
 
 
-        rungeKuttaStep(x_half, y1_half, y2_half, h_half, K, L);
-        rungeKuttaStep(x_half, y1_half, y2_half, h_half, K, L);
+            rungeKuttaStep(x_half, y1_half, y2_half, h_half, K, L);
+            rungeKuttaStep(x_half, y1_half, y2_half, h_half, K, L);
 
-        output << x << ";" << y1 << ";" << y1_half << ";" << y2 << ";" << y2_half << ";" << y1 - y1_half << ";" << y2-y2_half << ";" << h << ";" << error * pow(2, p) << ";" << s1 * pow(2, p) << ";" << s2 * pow(2, p) << ";" << c1 << ";" << c2 << std::endl;
+            // Вычисляем длину пройденного участка
+            double dx = x - xtmp;
+            double dy = y1 - y1tmp;
+            double segmentLength = std::sqrt(dx * dx + dy * dy);
+            currentLength += segmentLength; // Обновляем текущую длину
+
+            if (currentLength > maxLength) {
+                x = xtmp;
+                y1 = y1tmp;
+                y2 = y2tmp;
+                currentLength -= segmentLength;     //Возвращаемся к исходной точке и пересчитываем с уменьшенным шагом
+                should_decrease_step = true;
+                continue;
+            } 
+            else if (maxLength - currentLength > edge){         //Сохраняем точку и приближаемся к границе без уменьшения шага
+                should_decrease_step = false;
+                output << x << ";" << y1 << ";" << y1_half << ";" << y2 << ";" << y2_half << ";" << y1 - y1_half << ";" << y2-y2_half << ";" << h << ";" << error * pow(2, p) << ";" << s1 * pow(2, p) << ";" << s2 * pow(2, p) << ";" << c1 << ";" << c2 << ";" << currentLength << std::endl;
+                continue;         
+            }
+            else {
+                output << x << ";" << y1 << ";" << y1_half << ";" << y2 << ";" << y2_half << ";" << y1 - y1_half << ";" << y2-y2_half << ";" << h << ";" << error * pow(2, p) << ";" << s1 * pow(2, p) << ";" << s2 * pow(2, p) << ";" << c1 << ";" << c2 << ";" << currentLength << std::endl;
+                break;
+            }
+        }
 
     } 
 
@@ -243,17 +278,17 @@ int main() {
     double x0 = 0.0;
     double y10 = 0.0;
     double y20 = 0.0;
-    double h0 = 0.1;
-    double xmax = 1.0;
+    double h0 = 0.001;
+    double maxLength = 1.0;
     double K = 2.0;
     double L = 1.0;
     int maxSteps = 10000;
     double tolerance = 1e-7;
-    double edge = 0;
+    double edge = 1e-6;
 
 
     //Вызов rungeKuttaAdaptive с данными переменными
-    rungeKuttaAdaptive(x0, y10, y20, h0, xmax, K, L, maxSteps, tolerance, edge);
+    rungeKuttaAdaptive(x0, y10, y20, h0, maxLength, K, L, maxSteps, tolerance, edge);
 
     return 0;
 }
